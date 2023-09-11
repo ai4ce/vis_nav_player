@@ -59,5 +59,5 @@ class KeyboardPlayerPyGame(Player):
 
 
 if __name__ == "__main__":
-    import vis_nav
+    import vis_nav  # note: this won't run until vis_nav.pyd is in the same folder or vis_nav is installed via pip
     vis_nav.play(the_player=KeyboardPlayerPyGame())
