@@ -1,10 +1,13 @@
 from interface import Player, Action
 import pygame
+import cv2
 
 
 class KeyboardPlayerPyGame(Player):
     def __init__(self):
         super(KeyboardPlayerPyGame, self).__init__()
+
+    def reset(self):
         self.fpv = None
         self.last_act = Action.IDLE
         pygame.init()
@@ -24,16 +27,25 @@ class KeyboardPlayerPyGame(Player):
                 pygame.quit()
                 self.last_act = Action.QUIT
                 return Action.QUIT
+
             if event.type == pygame.KEYDOWN:
                 if event.key in keymap:
-                    self.last_act = keymap[event.key]
-                return self.last_act
+                    self.last_act |= keymap[event.key]
+                else:
+                    self.show_target_images()
             if event.type == pygame.KEYUP:
-                self.last_act = Action.IDLE
-                return Action.IDLE
+                if event.key in keymap:
+                    self.last_act ^= keymap[event.key]
         return self.last_act
 
+    def show_target_images(self):
+        concat_img = cv2.hconcat(self.get_target_images())
+        cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
+
     def see(self, fpv):
+        if fpv is None or len(fpv.shape) < 3:
+            return
+
         self.fpv = fpv
 
         if self.screen is None:

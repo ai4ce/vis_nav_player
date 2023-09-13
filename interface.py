@@ -22,6 +22,15 @@ class Player:
     """
     def __init__(self):
         self._targets = None  # this is to be set by the simulation server when it is being constructed
+        self.reset()
+
+    def reset(self):
+        """
+        This function is to be invoked by the simulation play function before starting the game
+        :return:
+        """
+        raise NotImplementedError('Your player class should at least implement '
+                                  'this function to enable reset of the players.')
 
     def act(self) -> Action:
         """
