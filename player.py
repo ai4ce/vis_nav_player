@@ -5,23 +5,29 @@ import cv2
 
 class KeyboardPlayerPyGame(Player):
     def __init__(self):
+        self.fpv = None
+        self.last_act = Action.IDLE
+        self.screen = None
+        self.keymap = None
         super(KeyboardPlayerPyGame, self).__init__()
 
     def reset(self):
         self.fpv = None
         self.last_act = Action.IDLE
-        pygame.init()
         self.screen = None
 
-    def act(self):
-        keymap = {
+        pygame.init()
+
+        self.keymap = {
             pygame.K_LEFT: Action.LEFT,
             pygame.K_RIGHT: Action.RIGHT,
             pygame.K_UP: Action.FORWARD,
             pygame.K_DOWN: Action.BACKWARD,
+            pygame.K_SPACE: Action.CHECKIN,
             pygame.K_ESCAPE: Action.QUIT
         }
 
+    def act(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -29,17 +35,20 @@ class KeyboardPlayerPyGame(Player):
                 return Action.QUIT
 
             if event.type == pygame.KEYDOWN:
-                if event.key in keymap:
-                    self.last_act |= keymap[event.key]
+                if event.key in self.keymap:
+                    self.last_act |= self.keymap[event.key]
                 else:
                     self.show_target_images()
             if event.type == pygame.KEYUP:
-                if event.key in keymap:
-                    self.last_act ^= keymap[event.key]
+                if event.key in self.keymap:
+                    self.last_act ^= self.keymap[event.key]
         return self.last_act
 
     def show_target_images(self):
-        concat_img = cv2.hconcat(self.get_target_images())
+        targets = self.get_target_images()
+        if targets is None or len(targets) <= 0:
+            return
+        concat_img = cv2.hconcat(targets)
         cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
 
     def see(self, fpv):
