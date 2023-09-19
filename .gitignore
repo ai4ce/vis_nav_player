@@ -5,7 +5,10 @@
 /*.so
 /*.DS_Store
 /*.npy
+/*.json
 __pycache__/
 /data
 /turtlebot
 turtlebot.urdf
+/models
+/textures
