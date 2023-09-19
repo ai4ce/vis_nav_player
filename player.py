@@ -50,7 +50,6 @@ class KeyboardPlayerPyGame(Player):
             return
         concat_img = cv2.hconcat(targets)
         cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
-        cv2.waitKey(1)
 
     def see(self, fpv):
         if fpv is None or len(fpv.shape) < 3:
