@@ -30,33 +30,27 @@ class Player:
     This is a base class. Inherit it like the KeyboardPlayerPyGame example in player.py
     """
     def __init__(self):
-        self._targets = None  # this is to be set by the simulation server when it is being constructed
-        self._state = None  # this is to be set by the simulation server
+        self._targets = None  # this is to be set by the game server when it is being constructed
+        self._state = None  # this is to be set by the game server
         self.reset()
 
     def reset(self) -> None:
         """
-        This function is to be invoked by the simulation play function before starting the game
+        This function is to be invoked by the game play function before starting the game
         :return: None
         """
         raise NotImplementedError('Your player class should at least implement '
                                   'this function to enable reset of the players.')
 
-    def before_exploration(self) -> None:
-        print('before exploration')
+    def pre_exploration(self) -> None:
+        print('pre exploration')
 
-    def after_exploration(self) -> None:
-        print('after exploration')
-
-    def before_navigation(self) -> None:
-        print('before navigation')
-
-    def after_navigation(self) -> None:
-        print('after navigation')
+    def pre_navigation(self) -> None:
+        print('pre navigation')
 
     def act(self) -> Action:
         """
-        This function is to be invoked by the simulation server in each step, right after invoking see(fpv)
+        This function is to be invoked by the game server in each step, right after invoking see(fpv)
 
         return an action
         """
@@ -65,7 +59,7 @@ class Player:
 
     def see(self, fpv: np.ndarray) -> None:
         """
-        This function is to be invoked by the simulation server in each step
+        This function is to be invoked by the game server in each step
         :param fpv: an opencv image (BGR format)
         """
         raise NotImplementedError('Your player class should at least implement '
@@ -80,14 +74,29 @@ class Player:
 
     def set_target_images(self, images: list[np.ndarray]) -> None:
         """
-        This function is to be invoked by the simulation server after exploration is finished
+        This function is to be invoked by the game server after exploration is finished
         :param images: a list of images that represents the target
         :return: None
         """
         self._targets = images
 
     def get_state(self):
+        """
+        This function is to be invoked by players
+        :return: a tuple of the following items:
+            bot_fpv: np.ndarray
+            phase: Enum
+            step: int
+            time: float
+            fps: float
+            time_left: float
+        """
         return self._state
 
     def set_state(self, state):
+        """
+        This function is to be invoked by the game server
+        :param state: a 6-tuple
+        :return: None
+        """
         self._state = state
