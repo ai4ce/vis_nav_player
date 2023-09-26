@@ -1,4 +1,4 @@
-from interface import Player, Action
+from vis_nav_game import Player, Action
 import pygame
 import cv2
 
@@ -50,6 +50,11 @@ class KeyboardPlayerPyGame(Player):
             return
         concat_img = cv2.hconcat(targets)
         cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
+        cv2.waitKey(1)
+
+    def set_target_images(self, images):
+        super(KeyboardPlayerPyGame, self).set_target_images(images)
+        self.show_target_images()
 
     def see(self, fpv):
         if fpv is None or len(fpv.shape) < 3:
@@ -80,5 +85,5 @@ class KeyboardPlayerPyGame(Player):
 
 
 if __name__ == "__main__":
-    import vis_nav  # note: this won't run until vis_nav.pyd is in the same folder or vis_nav is installed via pip
-    vis_nav.play(the_player=KeyboardPlayerPyGame())
+    import vis_nav_game
+    vis_nav_game.play(the_player=KeyboardPlayerPyGame())

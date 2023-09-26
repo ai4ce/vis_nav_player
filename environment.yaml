@@ -1,0 +1,16 @@
+name: game
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10.12
+  - pip=23.2.1
+  - pybullet=3.24
+  - pip:
+    - numpy==1.25.2
+    - opencv_python==4.8.0.76
+    - cython~=3.0.2
+    - pygame~=2.5.1
+    - matplotlib>=3.5.3
+    - cryptography==41.0.3
+    - gdown~=4.7.1
+    - vis-nav-game

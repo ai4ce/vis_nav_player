@@ -1,0 +1,10 @@
+vis-nav-game
+
+pybullet==3.24
+numpy~=1.25.2
+
+cython~=3.0.2
+matplotlib>=3.5.3
+cryptography~=41.0.3
+opencv-python~=4.8.0.76
+gdown~=4.7.1
