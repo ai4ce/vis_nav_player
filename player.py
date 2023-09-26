@@ -48,7 +48,29 @@ class KeyboardPlayerPyGame(Player):
         targets = self.get_target_images()
         if targets is None or len(targets) <= 0:
             return
-        concat_img = cv2.hconcat(targets)
+        hor1 = cv2.hconcat(targets[:2])
+        hor2 = cv2.hconcat(targets[2:])
+        concat_img = cv2.vconcat([hor1, hor2])
+
+        w, h = concat_img.shape[:2]
+        
+        color = (0, 0, 0)
+
+        concat_img = cv2.line(concat_img, (int(h/2), 0), (int(h/2), w), color, 2)
+        concat_img = cv2.line(concat_img, (0, int(w/2)), (h, int(w/2)), color, 2)
+
+        w_offset = 25
+        h_offset = 10
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        line = cv2.LINE_AA
+        size = 0.75
+        stroke = 1
+
+        cv2.putText(concat_img, 'Front View', (h_offset, w_offset), font, size, color, stroke, line)
+        cv2.putText(concat_img, 'Right View', (int(h/2) + h_offset, w_offset), font, size, color, stroke, line)
+        cv2.putText(concat_img, 'Back View', (h_offset, int(w/2) + w_offset), font, size, color, stroke, line)
+        cv2.putText(concat_img, 'Left View', (int(h/2) + h_offset, int(w/2) + w_offset), font, size, color, stroke, line)
+
         cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
         cv2.waitKey(1)
 
