@@ -6,6 +6,7 @@ dependencies:
   - pip=23.2.1
   - pybullet=3.24
   - pip:
+    - --extra-index-url https://test.pypi.org/simple/
     - numpy==1.25.2
     - opencv_python==4.8.0.76
     - cython~=3.0.2
