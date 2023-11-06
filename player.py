@@ -78,6 +78,13 @@ class KeyboardPlayerPyGame(Player):
         super(KeyboardPlayerPyGame, self).set_target_images(images)
         self.show_target_images()
 
+    def pre_exploration(self):
+        K = self.get_camera_intrinsic_matrix()
+        print(f'K={K}')
+
+    def pre_navigation(self) -> None:
+        pass
+
     def see(self, fpv):
         if fpv is None or len(fpv.shape) < 3:
             return
@@ -107,5 +114,9 @@ class KeyboardPlayerPyGame(Player):
 
 
 if __name__ == "__main__":
-    import vis_nav_game
-    vis_nav_game.play(the_player=KeyboardPlayerPyGame())
+    import logging
+    logging.basicConfig(filename='vis_nav_player.log', filemode='w', level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s: %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    import vis_nav_game as vng
+    logging.info(f'player.py is using vis_nav_game {vng.core.__version__}')
+    vng.play(the_player=KeyboardPlayerPyGame())
