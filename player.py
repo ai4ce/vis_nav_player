@@ -67,9 +67,9 @@ class KeyboardPlayerPyGame(Player):
         stroke = 1
 
         cv2.putText(concat_img, 'Front View', (h_offset, w_offset), font, size, color, stroke, line)
-        cv2.putText(concat_img, 'Right View', (int(h/2) + h_offset, w_offset), font, size, color, stroke, line)
+        cv2.putText(concat_img, 'Left View', (int(h/2) + h_offset, w_offset), font, size, color, stroke, line)
         cv2.putText(concat_img, 'Back View', (h_offset, int(w/2) + w_offset), font, size, color, stroke, line)
-        cv2.putText(concat_img, 'Left View', (int(h/2) + h_offset, int(w/2) + w_offset), font, size, color, stroke, line)
+        cv2.putText(concat_img, 'Right View', (int(h/2) + h_offset, int(w/2) + w_offset), font, size, color, stroke, line)
 
         cv2.imshow(f'KeyboardPlayer:target_images', concat_img)
         cv2.waitKey(1)
