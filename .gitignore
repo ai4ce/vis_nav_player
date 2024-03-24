@@ -9,3 +9,7 @@ __pycache__/
 data/
 /dist
 *egg-info
+
+#ignoring img and log files
+target.jpg
+vis_nav_player.log
