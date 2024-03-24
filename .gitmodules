@@ -1,0 +1,3 @@
+[submodule "ORB-SLAM3-python"]
+	path = ORB-SLAM3-python
+	url = https://github.com/xingruiy/ORB-SLAM3-python.git
