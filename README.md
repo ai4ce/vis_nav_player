@@ -14,10 +14,7 @@ conda activate game
 sudo apt install libopenblas-base libomp-dev
 ```
 
-2. Play using the default keyboard player
+2. Play
 ```commandline
-python player.py
+python grave_digger.py
 ```
-
-3. Modify the player.py to implement your own solutions, 
-unless you have photographic memories!
