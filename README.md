@@ -7,7 +7,7 @@ For more information, please reach out to AI4CE lab (cfeng at nyu dot edu).
 1. Install
 ```commandline
 conda update conda
-git clone https://github.com/ai4ce/vis_nav_player.git
+git clone https://github.com/llama887/grave_digger.git
 cd vis_nav_player
 conda env create -f environment.yaml
 conda activate game
