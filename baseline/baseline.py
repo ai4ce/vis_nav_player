@@ -9,7 +9,6 @@ import pickle
 from sklearn.cluster import KMeans
 from sklearn.neighbors import BallTree
 
-
 # Define a class for a player controlled by keyboard input using pygame
 class KeyboardPlayerPyGame(Player):
     def __init__(self):
@@ -338,4 +337,5 @@ class KeyboardPlayerPyGame(Player):
 if __name__ == "__main__":
     import vis_nav_game
     # Start the game with the KeyboardPlayerPyGame player
+    breakpoint()
     vis_nav_game.play(the_player=KeyboardPlayerPyGame())

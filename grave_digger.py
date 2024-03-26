@@ -1,6 +1,7 @@
 from vis_nav_game import Player, Action, Phase
 import pygame
 import cv2
+import pdb
 
 from deadreckoning import Localizer
 from image_storage import Storage_Bot
@@ -37,7 +38,6 @@ class KeyboardPlayerPyGame(Player):
 
         # Reset location
         self.localizer = Localizer()
-
         pygame.init()
 
         self.keymap = {
@@ -52,6 +52,8 @@ class KeyboardPlayerPyGame(Player):
             pygame.K_t: 1,
             pygame.K_LSHIFT: 1,
         }
+        breakpoint()
+        
     def act(self):
         """
         Handle player actions based on keyboard input
@@ -99,6 +101,7 @@ class KeyboardPlayerPyGame(Player):
                         self.last_act ^= self.keymap[event.key]
         # show the explored area and the current position
         self.localizer.map.update_minimap(self.localizer.current_x, self.localizer.current_y) 
+        return self.last_act
     def post_exploration(self) -> None:
         #TODO: place reconigition
         self.is_navigation = True
