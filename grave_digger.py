@@ -100,7 +100,7 @@ class KeyboardPlayerPyGame(Player):
         # show the explored area and the current position
         self.localizer.map.update_minimap(self.localizer.current_x, self.localizer.current_y) 
     def post_exploration(self) -> None:
-        #place reconigition
+        #TODO: place reconigition
         self.is_navigation = True
     def show_target_images(self):
         """
