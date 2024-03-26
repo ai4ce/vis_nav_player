@@ -1,7 +1,7 @@
-# Visual Navigation Game (Example Player Code)
+# Visual Navigation Game
 
-This is the course project platform for NYU ROB-GY 6203 Robot Perception. 
-For more information, please reach out to AI4CE lab (cfeng at nyu dot edu).
+This is forked from the course project platform for NYU ROB-GY 6203 Robot Perception. 
+For more information about the course project, please reach out to AI4CE lab (cfeng at nyu dot edu).
 
 # Instructions for Players
 1. Install
