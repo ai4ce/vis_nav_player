@@ -11,6 +11,7 @@ git clone https://github.com/ai4ce/vis_nav_player.git
 cd vis_nav_player
 conda env create -f environment.yaml
 conda activate game
+sudo apt install libopenblas-base libomp-dev
 ```
 
 2. Play using the default keyboard player
