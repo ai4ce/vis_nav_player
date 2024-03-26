@@ -1,5 +1,6 @@
 import redis
 import os
+import cv2
 
 class Storage_Bot():
     def __init__(self):
@@ -9,10 +10,10 @@ class Storage_Bot():
         key = f"{pose[0]}:{pose[1]}:{pose[2]}:{self.count}"
         self.count += 1
         return key
-    def disk(self, pose, path="/tmp"):
+    def disk(self, pose, image, path="/tmp"):
         if not os.path.exists(path):
             os.makedirs(path)
-        filename = self.unique_key(pose)+".jpg"
+        filename = self._unique_key(pose)+".jpg"
         with open(os.path.join(path, filename), "wb") as f:
             f.write(image)
     def reset(self) -> None:
