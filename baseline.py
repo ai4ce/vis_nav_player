@@ -8,6 +8,11 @@ import os
 import pickle
 from sklearn.cluster import KMeans
 from sklearn.neighbors import BallTree
+from tqdm import tqdm
+from natsort import natsorted
+
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 
 # Define a class for a player controlled by keyboard input using pygame
@@ -20,19 +25,23 @@ class KeyboardPlayerPyGame(Player):
         self.keymap = None  # Mapping of keyboard keys to actions
         super(KeyboardPlayerPyGame, self).__init__()
         
-        # Variables for saving data
-        self.count = 0  # Counter for saving images
-        self.save_dir = "data/images/"  # Directory to save images to
+        # Variables for reading exploration data
+        self.save_dir = "data/images_subsample/"
+        if not os.path.exists(self.save_dir):
+            print(f"Directory {self.save_dir} does not exist, please download exploration data.")
 
         # Initialize SIFT detector
         # SIFT stands for Scale-Invariant Feature Transform
         self.sift = cv2.SIFT_create()
-        # Load pre-trained codebook for VLAD encoding
-        # If you do not have this codebook comment the following line
-        # You can explore the maze once and generate the codebook (refer line 181 onwards for more)
-        self.codebook = pickle.load(open("codebook.pkl", "rb"))
+        # Load pre-trained sift features and codebook
+        self.sift_descriptors, self.codebook = None, None
+        if os.path.exists("sift_descriptors.npy"):
+            self.sift_descriptors = np.load("sift_descriptors.npy")
+        if os.path.exists("codebook.pkl"):
+            self.codebook = pickle.load(open("codebook.pkl", "rb"))
         # Initialize database for storing VLAD descriptors of FPV
-        self.database = []
+        self.database = None
+        self.goal = None
 
     def reset(self):
         # Reset the player state
@@ -131,19 +140,21 @@ class KeyboardPlayerPyGame(Player):
         Display image from database based on its ID using OpenCV
         """
         path = self.save_dir + str(id) + ".jpg"
-        img = cv2.imread(path)
-        cv2.imshow(window_name, img)
-        cv2.waitKey(1)
+        if os.path.exists(path):
+            img = cv2.imread(path)
+            cv2.imshow(window_name, img)
+            cv2.waitKey(1)
+        else:
+            print(f"Image with ID {id} does not exist")
 
     def compute_sift_features(self):
         """
         Compute SIFT features for images in the data directory
         """
-        length = len(os.listdir(self.save_dir))
+        files = natsorted([x for x in os.listdir(self.save_dir) if x.endswith('.jpg')])
         sift_descriptors = list()
-        for i in range(length):
-            path = str(i) + ".jpg"
-            img = cv2.imread(os.path.join(self.save_dir, path))
+        for img in tqdm(files, desc="Processing images"):
+            img = cv2.imread(os.path.join(self.save_dir, img))
             # Pass the image to sift detector and get keypoints + descriptions
             # We only need the descriptors
             # These descriptors represent local features extracted from the image.
@@ -212,38 +223,50 @@ class KeyboardPlayerPyGame(Player):
         """
         Build BallTree for nearest neighbor search and find the goal ID
         """
-        # If this function is called after the game has started
-        if self.count > 0:
-            # below 3 code lines to be run only once to generate the codebook
-            # Compute sift features for images in the database
-            sift_descriptors = self.compute_sift_features()
+        # Compute sift features for images in the database
+        if self.sift_descriptors is None:
+            print("Computing SIFT features...")
+            self.sift_descriptors = self.compute_sift_features()
+            np.save("sift_descriptors.npy", self.sift_descriptors)
+        else:
+            print("Loaded SIFT features from sift_descriptors.npy")
 
-            # KMeans clustering algorithm is used to create a visual vocabulary, also known as a codebook,
-            # from the computed SIFT descriptors.
-            # n_clusters = 64: Specifies the number of clusters (visual words) to be created in the codebook. In this case, 64 clusters are being used.
-            # init='k-means++': This specifies the method for initializing centroids. 'k-means++' is a smart initialization technique that selects initial 
-            # cluster centers in a way that speeds up convergence.
-            # n_init=10: Specifies the number of times the KMeans algorithm will be run with different initial centroid seeds. The final result will be 
-            # the best output of n_init consecutive runs in terms of inertia (sum of squared distances).
-            # The fit() method of KMeans is then called with sift_descriptors as input data. 
-            # This fits the KMeans model to the SIFT descriptors, clustering them into n_clusters clusters based on their feature vectors
+        # KMeans clustering algorithm is used to create a visual vocabulary, also known as a codebook,
+        # from the computed SIFT descriptors.
+        # n_clusters = 64: Specifies the number of clusters (visual words) to be created in the codebook. In this case, 64 clusters are being used.
+        # init='k-means++': This specifies the method for initializing centroids. 'k-means++' is a smart initialization technique that selects initial 
+        # cluster centers in a way that speeds up convergence.
+        # n_init=10: Specifies the number of times the KMeans algorithm will be run with different initial centroid seeds. The final result will be 
+        # the best output of n_init consecutive runs in terms of inertia (sum of squared distances).
+        # The fit() method of KMeans is then called with sift_descriptors as input data. 
+        # This fits the KMeans model to the SIFT descriptors, clustering them into n_clusters clusters based on their feature vectors
 
-            # TODO: try tuning the function parameters for better performance
-            codebook = KMeans(n_clusters = 64, init='k-means++', n_init=10, verbose=1).fit(sift_descriptors)
-            pickle.dump(codebook, open("codebook.pkl", "wb"))
-
+        # TODO: try tuning the function parameters for better performance
+        if self.codebook is None:
+            print("Computing codebook...")
+            self.codebook = KMeans(n_clusters=128, init='k-means++', n_init=5, verbose=1).fit(self.sift_descriptors)
+            pickle.dump(self.codebook, open("codebook.pkl", "wb"))
+        else:
+            print("Loaded codebook from codebook.pkl")
+        
+        # get VLAD emvedding for each image in the exploration phase
+        if self.database is None:
+            self.database = []
+            print("Computing VLAD embeddings...")
+            exploration_observation = natsorted([x for x in os.listdir(self.save_dir) if x.endswith('.jpg')])
+            for img in tqdm(exploration_observation, desc="Processing images"):
+                img = cv2.imread(os.path.join(self.save_dir, img))
+                VLAD = self.get_VLAD(img)
+                self.database.append(VLAD)
+                
             # Build a BallTree for fast nearest neighbor search
             # We create this tree to efficiently perform nearest neighbor searches later on which will help us navigate and reach the target location
             
             # TODO: try tuning the leaf size for better performance
-            tree = BallTree(self.database, leaf_size=60)
-            self.tree = tree
+            print("Building BallTree...")
+            tree = BallTree(self.database, leaf_size=64)
+            self.tree = tree        
 
-            # Get the neighbor nearest to the front view of the target image and set it as goal
-            targets = self.get_target_images()
-            index = self.get_neighbor(targets[0])
-            self.goal = index
-            print(f'Goal ID: {self.goal}')
 
     def pre_navigation(self):
         """
@@ -264,9 +287,9 @@ class KeyboardPlayerPyGame(Player):
         # In other words, get the image from the database that closely matches current FPV
         index = self.get_neighbor(self.fpv)
         # Display the image 5 frames ahead of the neighbor, so that next best view is not exactly same as current FPV
-        self.display_img_from_id(index+5, f'Next Best View')
+        self.display_img_from_id(index+3, f'Next Best View')
         # Display the next best view id along with the goal id to understand how close/far we are from the goal
-        print(f'Next View ID: {index+5} || Goal ID: {self.goal}')
+        print(f'Next View ID: {index+3} || Goal ID: {self.goal}')
 
     def see(self, fpv):
         """
@@ -305,24 +328,21 @@ class KeyboardPlayerPyGame(Player):
             if self._state[1] == Phase.EXPLORATION:
                 # TODO: could you employ any technique to strategically perform exploration instead of random exploration
                 # to improve performance (reach target location faster)?
-
-                # Get full absolute save path
-                save_dir_full = os.path.join(os.getcwd(),self.save_dir)
-                save_path = save_dir_full + str(self.count) + ".jpg"
-                # Create path if it does not exist
-                if not os.path.isdir(save_dir_full):
-                    os.mkdir(save_dir_full)
-                # Save current FPV
-                cv2.imwrite(save_path, fpv)
-
-                # Get VLAD embedding for current FPV and add it to the database
-                VLAD = self.get_VLAD(self.fpv)
-                self.database.append(VLAD)
-                self.count = self.count + 1
+                
+                # Nothing to do here since exploration data has been provided
+                pass
+            
             # If in navigation stage
             elif self._state[1] == Phase.NAVIGATION:
                 # TODO: could you do something else, something smarter than simply getting the image closest to the current FPV?
                 
+                if self.goal is None:
+                    # Get the neighbor nearest to the front view of the target image and set it as goal
+                    targets = self.get_target_images()
+                    index = self.get_neighbor(targets[0])
+                    self.goal = index
+                    print(f'Goal ID: {self.goal}')
+                                
                 # Key the state of the keys
                 keys = pygame.key.get_pressed()
                 # If 'q' key is pressed, then display the next best view based on the current FPV
