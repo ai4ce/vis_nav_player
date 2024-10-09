@@ -20,3 +20,12 @@ python player.py
 
 3. Modify the player.py to implement your own solutions, 
 unless you have photographic memories!
+
+# Baseline Solution
+1. Download exploration data from link provided in the class.
+2. Unzip exploration_data.zip 'images/images_subsample' under 'vis_nav_player/data' folder.
+3. Place 'startup.json' under 'vis_nav_player/' folder.
+4. Run baseline code
+   ```
+   python baseline.py
+   ```
