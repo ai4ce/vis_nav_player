@@ -9,4 +9,6 @@ __pycache__/
 data/
 /dist
 *egg-info
-exploration_data/
+data/
+*.log
+target.jpg
