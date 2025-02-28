@@ -18,3 +18,4 @@ dependencies:
     - vis-nav-game
     - natsort==8.4.0
     - networkx==3.4.2
+
