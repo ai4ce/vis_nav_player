@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import os
 import pickle
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans
 from sklearn.neighbors import BallTree
 from tqdm import tqdm
 from natsort import natsorted
@@ -266,7 +266,7 @@ class KeyboardPlayerPyGame(Player):
         # TODO: try tuning the function parameters for better performance
         if self.codebook is None:
             print("Computing codebook...")
-            self.codebook = MiniBatchKMeans(n_clusters=128, init='k-means++', n_init=5, verbose=1).fit(self.sift_descriptors)
+            self.codebook = KMeans(n_clusters=128, init='k-means++', n_init=5, verbose=1).fit(self.sift_descriptors)
             pickle.dump(self.codebook, open("codebook.pkl", "wb"))
         else:
             print("Loaded codebook from codebook.pkl")
