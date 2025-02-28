@@ -1,0 +1,17 @@
+11-Feb-25 13:35:39 - INFO: player.py is using vis_nav_game 1.2.1
+11-Feb-25 13:35:42 - INFO: vis_nav_game.core version=1.2.1
+11-Feb-25 13:35:42 - INFO: init from A:\NYU\Academics\TA\Game\vis_nav_player\startup.json: {'ESSENTIAL_FILE_ID': '1CvIOxnKO8Z8NDBh-kKOpUuWEgPinLLSV', 'MAZE_FILE_ID': '1gF7HiL6dMFuTNBi87mvXrShrA93df-RK', 'MAZE_FILE_MD5_KEY': 'ee5b9a353f2c713e8f00333669a06fd0'}
+11-Feb-25 13:35:42 - INFO: Missing essentials, downloading the files...
+11-Feb-25 13:35:51 - INFO: Essentials extraction complete.
+11-Feb-25 13:35:51 - INFO: Missing A:\NYU\Academics\TA\Game\vis_nav_player\data\maze.json, downloading it...
+11-Feb-25 13:35:55 - INFO: Start loading the map
+11-Feb-25 13:35:55 - INFO: Init rules from {'NAV_START_TIME': 1727755200.0, 'NOISY_MOTION': 1}
+11-Feb-25 13:35:55 - INFO: NAV_START_TIME set to 2024/10/01 00:00:00
+11-Feb-25 13:35:55 - INFO: System time=1739298955.7021427, Internet time=1739298947.9909663, diff=7.71117639541626
+11-Feb-25 13:35:55 - INFO: NOISY_MOTION set to 1
+11-Feb-25 13:35:55 - INFO: Loaded rules for competition!
+11-Feb-25 13:36:10 - INFO: Finished loading the map: takes 14.485357999801636 s
+11-Feb-25 13:36:12 - INFO: Target Images processing completed.
+11-Feb-25 13:36:12 - INFO: EXPLORATION phase passed. Proceeding to NAVIGATION phase.
+11-Feb-25 13:38:40 - INFO: Saving the game, please wait...
+11-Feb-25 13:38:40 - INFO: Game saved successfully at A:\NYU\Academics\TA\Game\vis_nav_player\data\save\game-20250211-133840.npy.
