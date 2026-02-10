@@ -15,7 +15,7 @@ conda activate game
 
 2. Play using the default keyboard player
 ```commandline
-python player.py
+python source/player.py
 ```
 
 3. Modify the player.py to implement your own solutions, 
