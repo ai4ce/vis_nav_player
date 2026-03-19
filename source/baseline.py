@@ -18,9 +18,8 @@ from tqdm import tqdm
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-CACHE_DIR = "cache"
-IMAGE_DIR = "data/images/"
-DATA_INFO_PATH = "data/data_info.json"
+CACHE_DIR = "cache_new"
+DATA_DIR = "/Users/jdscript/Developer/vis_nav_game_dev/exploration_output"
 
 # Graph construction
 TEMPORAL_WEIGHT = 1.0       # edge weight for consecutive frames
@@ -91,7 +90,7 @@ class VLADExtractor:
         print(f"Extracting SIFT for {len(file_list)} images...")
         self._sift_cache = {}
         for fname in tqdm(file_list, desc="SIFT"):
-            img = cv2.imread(os.path.join(IMAGE_DIR, fname))
+            img = cv2.imread(fname)
             _, des = self.sift.detectAndCompute(img, None)
             if des is not None:
                 self._sift_cache[fname] = self._root_sift(des)
@@ -153,22 +152,79 @@ class KeyboardPlayerPyGame(Player):
         self.subsample_rate = subsample_rate
         self.top_k_shortcuts = top_k_shortcuts
 
-        # Load trajectory data
-        self.motion_frames = []
-        self.file_list = []
-        if os.path.exists(DATA_INFO_PATH):
-            with open(DATA_INFO_PATH) as f:
-                raw = json.load(f)
-            pure = {'FORWARD', 'LEFT', 'RIGHT', 'BACKWARD'}
-            all_motion = [
-                {'step': d['step'], 'image': d['image'], 'action': d['action'][0]}
-                for d in raw
-                if len(d['action']) == 1 and d['action'][0] in pure
-            ]
+        # Load trajectory data — supports both formats:
+        #   New: data/traj_0/, data/traj_1/, ... each with data_info.json + images
+        #   Legacy: data/images/ + data/data_info.json
+        self.motion_frames = []   # list of {step, image, action, traj_id, image_path}
+        self.file_list = []       # image paths relative to cwd
+        self.traj_boundaries = [] # (start_idx, end_idx) per trajectory in motion_frames
+
+        traj_dirs = sorted([
+            d for d in os.listdir(DATA_DIR)
+            if d.startswith('traj_') and os.path.isdir(os.path.join(DATA_DIR, d))
+        ])
+
+        if traj_dirs:
+            # New multi-trajectory format
+            all_motion = []
+            for traj_dir_name in traj_dirs:
+                traj_path = os.path.join(DATA_DIR, traj_dir_name)
+                info_path = os.path.join(traj_path, 'data_info.json')
+                if not os.path.exists(info_path):
+                    continue
+                with open(info_path) as f:
+                    raw = json.load(f)
+                traj_id = traj_dir_name
+                pure = {'FORWARD', 'LEFT', 'RIGHT', 'BACKWARD'}
+                traj_motion = [
+                    {'step': d['step'], 'image': d['image'], 'action': d['action'][0],
+                     'traj_id': traj_id, 'image_path': os.path.join(traj_path, d['image'])}
+                    for d in raw
+                    if len(d['action']) == 1 and d['action'][0] in pure
+                ]
+                start_idx = len(all_motion)
+                all_motion.extend(traj_motion)
+                end_idx = len(all_motion)
+                self.traj_boundaries.append((start_idx, end_idx))
+                print(f"  {traj_dir_name}: {len(traj_motion)} motion frames")
+
             self.motion_frames = all_motion[::subsample_rate]
-            self.file_list = [m['image'] for m in self.motion_frames]
+            # Recompute boundaries after subsampling
+            self.traj_boundaries = []
+            prev_traj = None
+            for idx, m in enumerate(self.motion_frames):
+                if m['traj_id'] != prev_traj:
+                    if prev_traj is not None:
+                        self.traj_boundaries[-1] = (self.traj_boundaries[-1][0], idx)
+                    self.traj_boundaries.append((idx, len(self.motion_frames)))
+                    prev_traj = m['traj_id']
+            if self.traj_boundaries:
+                self.traj_boundaries[-1] = (self.traj_boundaries[-1][0], len(self.motion_frames))
+
+            self.file_list = [m['image_path'] for m in self.motion_frames]
             print(f"Frames: {len(all_motion)} total, "
-                  f"{len(self.motion_frames)} after {subsample_rate}x subsample")
+                  f"{len(self.motion_frames)} after {subsample_rate}x subsample, "
+                  f"{len(self.traj_boundaries)} trajectories")
+        else:
+            # Legacy single-directory format
+            legacy_info = os.path.join(DATA_DIR, 'data_info.json')
+            legacy_img_dir = os.path.join(DATA_DIR, 'images')
+            if os.path.exists(legacy_info):
+                with open(legacy_info) as f:
+                    raw = json.load(f)
+                pure = {'FORWARD', 'LEFT', 'RIGHT', 'BACKWARD'}
+                all_motion = [
+                    {'step': d['step'], 'image': d['image'], 'action': d['action'][0],
+                     'traj_id': 'traj_0',
+                     'image_path': os.path.join(legacy_img_dir, d['image'])}
+                    for d in raw
+                    if len(d['action']) == 1 and d['action'][0] in pure
+                ]
+                self.motion_frames = all_motion[::subsample_rate]
+                self.file_list = [m['image_path'] for m in self.motion_frames]
+                self.traj_boundaries = [(0, len(self.motion_frames))]
+                print(f"Frames (legacy): {len(all_motion)} total, "
+                      f"{len(self.motion_frames)} after {subsample_rate}x subsample")
 
         self.extractor = VLADExtractor(n_clusters=n_clusters)
         self.database = None
@@ -259,9 +315,10 @@ class KeyboardPlayerPyGame(Player):
         self.G = nx.Graph()
         self.G.add_nodes_from(range(n))
 
-        # Temporal edges (consecutive frames)
-        for i in range(n - 1):
-            self.G.add_edge(i, i + 1, weight=TEMPORAL_WEIGHT, edge_type="temporal")
+        # Temporal edges (consecutive frames within each trajectory)
+        for start, end in self.traj_boundaries:
+            for i in range(start, end - 1):
+                self.G.add_edge(i, i + 1, weight=TEMPORAL_WEIGHT, edge_type="temporal")
 
         # Visual shortcut edges: global top-K most similar pairs
         print("Computing similarity matrix...")
@@ -317,7 +374,7 @@ class KeyboardPlayerPyGame(Player):
     def _load_img(self, idx: int) -> np.ndarray | None:
         """Load image by database index."""
         if 0 <= idx < len(self.file_list):
-            return cv2.imread(os.path.join(IMAGE_DIR, self.file_list[idx]))
+            return cv2.imread(self.file_list[idx])
         return None
 
     def _get_current_node(self) -> int:
