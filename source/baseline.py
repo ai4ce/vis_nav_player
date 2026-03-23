@@ -18,8 +18,8 @@ from tqdm import tqdm
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-CACHE_DIR = "cache_new"
-DATA_DIR = "/Users/jdscript/Developer/vis_nav_game_dev/exploration_output"
+CACHE_DIR = "cache"
+DATA_DIR = "data/exploration_data"
 
 # Graph construction
 TEMPORAL_WEIGHT = 1.0       # edge weight for consecutive frames
