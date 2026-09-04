@@ -70,10 +70,12 @@ Arrows move (hold two for an arc), **space** checks in, **escape** quits. When y
 the result appears in the terminal and on the challenge page, which the script opens for
 you.
 
-Each run is one **attempt**. Attempts may be limited per challenge and one is spent the
-moment your code connects; quitting or closing the window spends it too. Your best attempt
-is the one that counts. If your connection drops mid-run, the session waits five minutes
-for you: run the same command again and it picks up where it left off.
+Each run is one **attempt**. Attempts may be limited per challenge — per team on a
+competition — and one is spent the moment your code connects; quitting or closing the window
+spends it too. Your best attempt is the one that counts. If your connection drops mid-run,
+leave the program running: the server holds the session for five minutes and the SDK
+reconnects by itself ("connection lost", then "reconnected"). If you did close it, end the
+old run from its page on the site (Abort) before starting another.
 
 ## 4. Write your agent
 

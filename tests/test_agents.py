@@ -19,7 +19,14 @@ from baseline_agent import BaselineAgent  # noqa: E402
 from keyboard_agent import KeyboardAgent  # noqa: E402
 from vis_nav_sdk import Action, run  # noqa: E402
 from vis_nav_sdk import protocol as P  # noqa: E402
-from vis_nav_sdk.session import Camera, Limits, Observation, Result, SessionInfo  # noqa: E402
+from vis_nav_sdk.session import (  # noqa: E402
+    Arrival,
+    Camera,
+    Limits,
+    Observation,
+    Result,
+    SessionInfo,
+)
 from vis_nav_sdk.telemetry import Telemetry  # noqa: E402
 from vis_nav_sdk.viewer import Keys, Viewer  # noqa: E402
 
@@ -71,15 +78,14 @@ class FakeSession:
     def checkin(self):
         self.result = Result(
             goal_tier="partial",
-            trans_error=0.1,
-            rot_error=5.0,
             nav_steps=sum(r for _, r in self.calls),
-            step_ratio=1.2,
+            spl=0.8,
             points=3.0,
             max_points=5.0,
             awarded={},
             job_id="j",
             session_id="s",
+            arrival=Arrival(distance_m=0.1, heading_deg=5.0),
         )
         return self.result
 
