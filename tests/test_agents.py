@@ -69,7 +69,18 @@ class FakeSession:
         return Observation(_image(used), used, 200 - used)
 
     def checkin(self):
-        self.result = Result("partial", 0.1, sum(r for _, r in self.calls), "j", "s")
+        self.result = Result(
+            goal_tier="partial",
+            trans_error=0.1,
+            rot_error=5.0,
+            nav_steps=sum(r for _, r in self.calls),
+            step_ratio=1.2,
+            points=3.0,
+            max_points=5.0,
+            awarded={},
+            job_id="j",
+            session_id="s",
+        )
         return self.result
 
     def abort(self, reason=""):
@@ -86,7 +97,7 @@ class FakeClient:
     server = "http://fake"
 
     def __init__(self, api_key=None, *, server=None) -> None:
-        pass
+        self.api_key = api_key
 
     def challenge(self, challenge_id):
         return {"id": challenge_id, "name": "maze"}
