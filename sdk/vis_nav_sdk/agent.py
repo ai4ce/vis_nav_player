@@ -20,7 +20,6 @@ from .session import (
     Observation,
     Result,
     SessionInfo,
-    connect,
 )
 
 if TYPE_CHECKING:
@@ -157,54 +156,66 @@ def preflight(agent: Agent, *, width: int = P.CAMERA_WIDTH, height: int = P.CAME
 
 def run(
     agent: Agent,
-    token: str | None = None,
+    challenge_id: str,
     *,
+    api_key: str | None = None,
     server: str | None = None,
     repeat: int = 1,
     viewer: Viewer | bool | None = None,
     fps: float | None = None,
     check: bool = True,
+    confirm: bool | None = None,
+    browser: bool | None = None,
     quiet: bool = False,
     **connect_kwargs: Any,
 ) -> Result | None:
-    """Drive ``agent`` through the session ``token`` reserved (from Start on the challenge
-    page; falls back to ``$VIS_NAV_SESSION``). Returns the :class:`Result` if it checked in,
-    ``None`` if it quit or ran out of budget.
+    """Drive ``agent`` through one session on ``challenge_id``.
 
-    ``repeat`` is the tick count used when ``act()`` returns a bare ``Action``.
-    ``viewer`` opens a window showing the camera, the targets and per-step latency:
-    ``None`` opens one if pygame is installed, ``True`` insists, ``False`` runs headless.
-    ``fps`` caps how often ``act()`` is called: ``None`` means :data:`VIEWER_FPS` with a
-    window and unlimited without. ``check=False`` skips the pre-flight.
+    Before anything is spent it looks at the challenge: if your team already has a run
+    going it says so and stops; if you reserved a session earlier from this machine it
+    offers to continue with it; otherwise it asks whether to start a new attempt. It then
+    prints -- and, in a terminal, opens -- the page where the run can be followed live, and
+    where to submit your report if the challenge wants one. Returns the :class:`Result` if
+    the agent checked in, ``None`` if it quit or ran out of budget.
+
+    ``repeat`` is the tick count used when ``act()`` returns a bare ``Action``. ``viewer``
+    opens a window: ``None`` if pygame is installed, ``True`` insists, ``False`` headless.
+    ``fps`` caps how often ``act()`` is called: :data:`VIEWER_FPS` with a window, unlimited
+    without. ``confirm`` / ``browser`` default to "only in an interactive terminal";
+    ``check=False`` skips the pre-flight; ``quiet`` silences the terminal entirely.
     """
+    from . import reservations
+    from .rest import Client
+    from .session import redeem
+    from .ui import UI
     from .viewer import open_viewer
+
+    ui = UI(quiet=quiet)
+    client = Client(api_key, server=server)
+    token, report_link, page_url = _reserve(ui, client, challenge_id, confirm=confirm)
+    if token is None:
+        return None
+    if browser if browser is not None else ui.interactive:
+        import webbrowser
+
+        webbrowser.open(page_url)
 
     window: Viewer | None = open_viewer(viewer)
     agent.viewer = window
     if fps is None and window is not None:
         fps = VIEWER_FPS
     period = 1 / fps if fps else 0.0
-    say = (lambda *_: None) if quiet else print
     result: Result | None = None
     try:
         if check:
             preflight(agent)
 
-        with connect(token, server=server, **connect_kwargs) as session:
+        with redeem(token, server=client.server, **connect_kwargs) as session:
+            reservations.forget(session.session_id)
             info = session.info
-            say(
-                f"session {info.session_id} on {info.challenge.get('name', '?')!r}: "
-                f"{info.limits.max_steps} steps, attempt "
-                f"{info.limits.attempts_used}"
-                + (
-                    f"/{info.limits.attempts_allowed}"
-                    if info.limits.attempts_allowed is not None
-                    else ""
-                )
-            )
             agent.setup(info)
             if window is not None:
-                window.attach(info)
+                window.attach(info, report_link=report_link)
 
             obs = session.initial_observation
             assert obs is not None
@@ -243,19 +254,9 @@ def run(
 
             if result is None:
                 session.abort(reason or "")
-                say(f"session ended unscored: {reason}")
-            else:
-                say(
-                    f"{result.goal_tier}: {result.trans_error:.3f} m from the goal in "
-                    f"{result.nav_steps} steps"
-                )
-            t = session.telemetry.summary()
-            if t["steps"]:
-                say(
-                    f"{t['steps']} round trips, median rtt {t['rtt_ms_p50']:.1f} ms "
-                    f"(server {_fmt(t['server_ms_p50'])}, network {_fmt(t['network_ms_p50'])}), "
-                    f"your code {_fmt(t['think_ms_p50'])} per step"
-                )
+            ui.result(result, reason, session.telemetry)
+            if report_link:
+                ui.report_reminder(report_link)
             if window is not None:
                 window.hold(
                     f"{result.goal_tier.upper()}  ·  {result.trans_error:.2f} m from the goal"
@@ -272,8 +273,84 @@ def run(
     return result
 
 
-def _fmt(ms: float | None) -> str:
-    return "n/a" if ms is None else f"{ms:.1f} ms"
+def _reserve(
+    ui: Any, client: Any, challenge_id: str, *, confirm: bool | None
+) -> tuple[str | None, str | None, str]:
+    """Decide, with the user, which session this run will redeem.
+
+    Returns ``(token, report_link, page_url)``; ``token`` is ``None`` when the user
+    declined or a run is already in progress.
+    """
+    from . import reservations
+
+    ask = confirm if confirm is not None else ui.interactive
+    challenge = client.challenge(challenge_id)
+    quota = client.quota(challenge_id)
+    name = challenge.get("name", challenge_id)
+    report_link = quota.get("final_submission_link") or challenge.get("final_submission_link")
+
+    if quota.get("running", 0) > 0:
+        ui.warn(
+            f"Your team already has a session running on {name}. Only one runs at a time; "
+            "finish or abort it on the challenge page first."
+        )
+        return None, report_link, ""
+
+    held = quota.get("reservation")
+    if held is not None:
+        token = reservations.recall(client.server, held["session_id"])
+        age = max(0, round((time.time() * 1000 - held["started_at"]) / 60000))
+        if token is not None:
+            question = (
+                f"You reserved session {held['session_id']} {age} min ago and never "
+                "connected. Continue with it?"
+            )
+            if not ask or ui.confirm(question, default=True):
+                page_url = held["page_url"]
+                ui.session_started(
+                    challenge_name=name,
+                    session_id=held["session_id"],
+                    attempts_used=quota["attempts_used"],
+                    attempts_allowed=quota.get("attempts_allowed"),
+                    expires_at_ms=held["expires_at"],
+                    page_url=page_url,
+                    report_link=report_link,
+                )
+                return token, report_link, page_url
+        else:
+            ui.note(
+                f"A session was reserved for you {age} min ago (from the site or another machine); "
+                "starting one here replaces it."
+            )
+
+    used, allowed = quota["attempts_used"], quota.get("attempts_allowed")
+    if allowed is not None and used >= allowed:
+        ui.warn(f"You have used all {allowed} attempts on {name}. Your best one counts.")
+        return None, report_link, ""
+    attempt = f"attempt {used + 1}" + (f" of {allowed}" if allowed is not None else "")
+    if ask and not ui.confirm(
+        f"Start {attempt} on [bold]{name}[/bold]? The attempt is spent once your code connects.",
+        default=True,
+    ):
+        ui.note("Nothing started.")
+        return None, report_link, ""
+
+    created = client.start_session(challenge_id)
+    reservations.remember(client.server, created)
+    ui.session_started(
+        challenge_name=name,
+        session_id=created["session_id"],
+        attempts_used=created["attempts_used"],
+        attempts_allowed=created.get("attempts_allowed"),
+        expires_at_ms=created["expires_at"],
+        page_url=created["page_url"],
+        report_link=created.get("final_submission_link") or report_link,
+    )
+    return (
+        created["token"],
+        created.get("final_submission_link") or report_link,
+        created["page_url"],
+    )
 
 
 __all__ = ["KEEPALIVE_S", "VIEWER_FPS", "WAIT", "Agent", "decide", "preflight", "run"]

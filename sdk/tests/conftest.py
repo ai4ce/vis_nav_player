@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import time
+from typing import Any
 
 import numpy as np
 import pytest
@@ -59,6 +61,10 @@ class FakeSession:
         return self._info
 
     @property
+    def session_id(self) -> str:
+        return self._info.session_id
+
+    @property
     def limits(self) -> Limits:
         return self._info.limits
 
@@ -110,18 +116,60 @@ class FakeSession:
         self.close()
 
 
-@pytest.fixture
-def fake_connect(monkeypatch):
-    """Route :func:`vis_nav_sdk.run` at a :class:`FakeSession`; returns it."""
-    from vis_nav_sdk import agent as agent_module
+class FakeClient:
+    """The REST side as the runner sees it: a challenge, a quota, and Start."""
 
+    server = "http://fake"
+    quota_extra: dict[str, Any] = {}
+
+    def __init__(self, api_key=None, *, server=None) -> None:
+        self.api_key = api_key
+        self.started: list[str] = []
+
+    def challenge(self, challenge_id):
+        return {"id": challenge_id, "name": "Maze", "final_submission_link": "https://forms/x"}
+
+    def quota(self, challenge_id):
+        return {
+            "attempts_used": 1,
+            "attempts_allowed": 3,
+            "running": 0,
+            "reservation": None,
+            "final_submission_link": "https://forms/x",
+            **FakeClient.quota_extra,
+        }
+
+    def start_session(self, challenge_id):
+        self.started.append(challenge_id)
+        return {
+            "session_id": "abc123def456",
+            "token": f"vns_abc123def456_{len(self.started)}",
+            "expires_at": int(time.time() * 1000) + 900_000,
+            "attempts_used": 1,
+            "attempts_allowed": 3,
+            "max_steps": 500,
+            "final_submission_link": "https://forms/x",
+            "page_url": "https://site/challenges/c1?session=abc123def456",
+        }
+
+
+@pytest.fixture
+def fake_connect(monkeypatch, tmp_path):
+    """Route :func:`vis_nav_sdk.run` at a :class:`FakeSession` behind a :class:`FakeClient`;
+    returns the sessions created. Reservations are cached under ``tmp_path``."""
+    from vis_nav_sdk import rest
+    from vis_nav_sdk import session as session_module
+
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    FakeClient.quota_extra = {}
     created: list[FakeSession] = []
 
-    def connect(token, **kwargs):
+    def redeem(token, **kwargs):
         session = FakeSession()
         session.connect_kwargs = {"token": token, **kwargs}
         created.append(session)
         return session
 
-    monkeypatch.setattr(agent_module, "connect", connect)
+    monkeypatch.setattr(rest, "Client", FakeClient)
+    monkeypatch.setattr(session_module, "redeem", redeem)
     return created

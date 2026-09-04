@@ -67,7 +67,7 @@ def test_open_viewer_resolves_the_argument():
 
 
 def test_run_with_a_viewer(fake_connect):
-    result = run(Talkative(), "vns_c1_x", viewer=Viewer(scale=1, hold_s=0), quiet=True)
+    result = run(Talkative(), "c1", api_key="k", viewer=Viewer(scale=1, hold_s=0), quiet=True)
     assert result is not None
     assert not pygame.display.get_init()
 

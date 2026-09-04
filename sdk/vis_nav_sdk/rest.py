@@ -17,7 +17,6 @@ from urllib.parse import quote, urlencode
 
 from .config import resolve_api_key, resolve_server
 from .errors import SimError, http_error
-from .session import Session, connect
 
 
 class Client:
@@ -55,8 +54,16 @@ class Client:
 
     def quota(self, challenge_id: str) -> dict[str, Any]:
         """``attempts_used``, ``attempts_allowed`` (``None`` = unlimited), ``max_steps``,
-        ``running``."""
+        ``running`` (the team's live sessions), ``reservation`` (a session you started but
+        have not connected to), ``final_submission_link``."""
         return self._get(f"/sim/{quote(challenge_id, safe='')}/quota")
+
+    def start_session(self, challenge_id: str) -> dict[str, Any]:
+        """Reserve a session: ``session_id``, a one-time ``token`` to redeem within
+        ``expires_at``, ``page_url`` to follow it on the site, ``final_submission_link``.
+        Nothing is spent until the token is redeemed. Replaces any reservation you already
+        hold on this challenge."""
+        return self._post(f"/sim/{quote(challenge_id, safe='')}/sessions")
 
     def sessions(self, challenge_id: str) -> list[dict[str, Any]]:
         """This student's past sessions on a challenge, newest first."""
@@ -113,12 +120,6 @@ class Client:
         ...), ``steps_used``, ``result`` once scored, and a ``live`` block while running."""
         return self._get(f"/sim/sessions/{quote(session_id, safe='')}")
 
-    # -- simulation
-
-    def connect(self, token: str | None = None, **kwargs: Any) -> Session:
-        """Redeem a session token from the challenge page; see :func:`vis_nav_sdk.connect`."""
-        return connect(token, server=self.server, **kwargs)
-
     # -- plumbing
 
     def _headers(self) -> dict[str, str]:
@@ -135,7 +136,13 @@ class Client:
         query = {k: v for k, v in params.items() if v is not None and v is not False}
         if query:
             url += "?" + urlencode(query)
-        request = urllib.request.Request(url, headers=self._headers())
+        return self._send(urllib.request.Request(url, headers=self._headers()))
+
+    def _post(self, path: str) -> Any:
+        request = urllib.request.Request(self.server + path, method="POST", headers=self._headers())
+        return self._send(request)
+
+    def _send(self, request: urllib.request.Request) -> Any:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 return json.load(response)

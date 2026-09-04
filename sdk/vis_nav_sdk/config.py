@@ -1,10 +1,6 @@
 """
-Where the SDK looks for its settings, in order: explicit argument, environment variable,
-built-in default. Only the server has a default.
-
-A *session token* comes from pressing Start on the challenge page and opens exactly one
-run. The *API key* identifies the student to the REST API (exploration data, quota) and is
-not needed to run a session.
+Where the SDK looks for its two settings, in order: explicit argument, environment
+variable, built-in default. Only the server has a default.
 """
 
 from __future__ import annotations
@@ -16,7 +12,6 @@ from .errors import ConfigError
 DEFAULT_SERVER = "https://visual-navigation-challenge-api.ai4ce.dev"
 ENV_SERVER = "VIS_NAV_SERVER"
 ENV_API_KEY = "VIS_NAV_API_KEY"
-ENV_SESSION = "VIS_NAV_SESSION"
 
 TOKEN_PREFIX = "vns_"
 
@@ -26,17 +21,12 @@ def resolve_server(server: str | None = None) -> str:
     return value.strip().rstrip("/")
 
 
-def resolve_session_token(token: str | None = None) -> str:
-    value = (token or os.environ.get(ENV_SESSION) or "").strip()
-    if not value:
-        raise ConfigError(
-            "no session token. Press Start on the challenge page, copy the token it shows, "
-            f"and pass it as the first argument or set {ENV_SESSION}."
-        )
+def check_session_token(token: str) -> str:
+    value = token.strip()
     if not value.startswith(TOKEN_PREFIX) or value.count("_") < 2:
         raise ConfigError(
             f"{value[:12]!r}... is not a session token. Tokens look like vns_<session>_<secret> "
-            "and come from the Start button on the challenge page -- not your API key."
+            "and come from starting a session -- this is not your API key."
         )
     return value
 

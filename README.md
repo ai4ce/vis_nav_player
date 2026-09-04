@@ -29,7 +29,16 @@ export VIS_NAV_API_KEY="..."
 export VIS_NAV_CHALLENGE="..."
 ```
 
-Every script also takes `--api-key`, `--challenge` and `--server`.
+Every script also takes `--api-key`, `--challenge`, `--server`, `--yes` (do not ask) and
+`--no-browser`.
+
+## Starting a run
+
+Every script begins the same way. It checks the challenge — whether your team already has a
+run going, whether you left a session unconnected earlier — and asks before starting attempt
+_n_ of _m_. Then it opens the challenge page, where you can watch the robot's camera and your
+step count live and see the result when you check in, and tells you where to submit your
+report if the challenge asks for one. Nothing is spent until your code connects.
 
 ## Drive it yourself
 
@@ -109,32 +118,32 @@ from vis_nav_sdk import Agent, Action, run
 
 
 class MyAgent(Agent):
-    def __init__(self):
-        ...                              # load exploration data, build your index
+    def __init__(self): ...  # load exploration data, build your index
 
     def setup(self, info):
-        self.goal = info.targets[0]      # once per session
+        self.goal = info.targets[0]  # once per session
 
     def act(self, obs):
         if self.at_goal(obs.image):
-            return Action.CHECKIN        # scores the run and ends it
-        return Action.FORWARD, 4         # hold for 4 ticks in one round trip
+            return Action.CHECKIN  # scores the run and ends it
+        return Action.FORWARD, 4  # hold for 4 ticks in one round trip
 
-run(MyAgent(), "vns_...")                # the token from Start, or $VIS_NAV_SESSION
+
+run(MyAgent(), CHALLENGE_ID)  # key from $VIS_NAV_API_KEY
 ```
 
 Actions are a bit field — `FORWARD | LEFT` is an arc. Every tick counts toward
 `nav_steps`, which ranks you once you have reached the goal; `(action, n)` applies it for
 `n` ticks in one round trip, which changes how long you wait on the network and nothing
 else. Do your heavy lifting in `__init__`: nothing there touches the server, and `run()`
-tries your agent on random frames before redeeming the token, so a crash costs no attempt.
+tries your agent on random frames before connecting, so a crash costs no attempt.
 
 Prefer to drive the loop yourself?
 
 ```python
 from vis_nav_sdk import connect, Action
 
-with connect("vns_...") as session:
+with connect(CHALLENGE_ID) as session:
     obs = session.initial_observation
     obs = session.step(Action.FORWARD, repeat=4)
     print(session.checkin())

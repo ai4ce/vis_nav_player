@@ -3,45 +3,52 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 from vis_nav_sdk import Client
-from vis_nav_sdk.config import resolve_server, resolve_session_token, session_id_of
 
 
-def parser(description: str, *, needs_api_key: bool = False) -> argparse.ArgumentParser:
+def parser(description: str) -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=description)
     p.add_argument(
-        "session",
-        nargs="?",
-        default=None,
-        help="session token from Start on the challenge page (or $VIS_NAV_SESSION)",
+        "--challenge",
+        default=os.environ.get("VIS_NAV_CHALLENGE"),
+        help="challenge id from the course site (or $VIS_NAV_CHALLENGE)",
     )
+    p.add_argument("--api-key", default=None, help="your API key (or $VIS_NAV_API_KEY)")
     p.add_argument(
         "--server", default=None, help="API base URL (or $VIS_NAV_SERVER; default: course server)"
     )
-    if needs_api_key:
-        p.add_argument(
-            "--api-key",
-            default=None,
-            help="your API key (or $VIS_NAV_API_KEY), for downloading the exploration data",
-        )
+    p.add_argument("--yes", action="store_true", help="start without asking")
+    p.add_argument("--no-browser", action="store_true", help="do not open the challenge page")
     p.add_argument("--no-check", action="store_true", help="skip the pre-flight check")
     return p
 
 
-def token(args: argparse.Namespace) -> str:
-    return resolve_session_token(args.session)
+def challenge(args: argparse.Namespace) -> str:
+    if not args.challenge:
+        raise SystemExit("--challenge (or $VIS_NAV_CHALLENGE) is required")
+    return args.challenge
 
 
-def exploration_data(args: argparse.Namespace, data_dir: str | None) -> tuple[str, Path]:
-    """``(challenge_id, dataset directory)`` for the session's challenge, downloading the
-    dataset on first use. Needs the API key; the token alone does not identify you."""
-    client = Client(args.api_key, server=resolve_server(args.server))
-    challenge = client.session(session_id_of(token(args)))["challenge_id"]
+def run_options(args: argparse.Namespace) -> dict:
+    return {
+        "api_key": args.api_key,
+        "server": args.server,
+        "viewer": True,
+        "check": not args.no_check,
+        "confirm": False if args.yes else None,
+        "browser": False if args.no_browser else None,
+    }
+
+
+def exploration_data(args: argparse.Namespace, data_dir: str | None) -> Path:
+    """The dataset directory for the challenge, downloading it on first use."""
     if data_dir:
-        return challenge, Path(data_dir)
-    print(f"fetching exploration data for {challenge}...")
-    path = client.download_exploration_data(challenge, "data")
+        return Path(data_dir)
+    client = Client(args.api_key, server=args.server)
+    print(f"fetching exploration data for {args.challenge}...")
+    path = client.download_exploration_data(args.challenge, "data")
     print(f"  {path}")
-    return challenge, path
+    return path

@@ -33,7 +33,7 @@ from urllib.parse import quote, urlsplit, urlunsplit
 import numpy as np
 
 from . import protocol as P
-from .config import resolve_server, resolve_session_token, session_id_of
+from .config import check_session_token, resolve_server, session_id_of
 from .errors import SessionClosed, SimError, http_error
 from .telemetry import StepTiming, Telemetry
 
@@ -663,27 +663,50 @@ def _observation(header: dict[str, Any], image: np.ndarray) -> Observation:
 
 
 def connect(
-    token: str | None = None,
+    challenge_id: str,
     *,
+    api_key: str | None = None,
     server: str | None = None,
     recv_timeout: float = 60.0,
     open_timeout: float = 20.0,
 ) -> Session:
-    """Redeem a session token from the challenge page and open the run it reserved.
+    """Start a session on ``challenge_id`` and open it. This spends an attempt.
 
-    ``token`` falls back to ``$VIS_NAV_SESSION``; ``server`` to ``$VIS_NAV_SERVER`` and then
-    the course server. A token opens exactly one session; the page hands out a new one each
-    time you press Start.
+    ``api_key`` falls back to ``$VIS_NAV_API_KEY``; ``server`` to ``$VIS_NAV_SERVER`` and
+    then the course server. No questions asked -- :func:`vis_nav_sdk.run` is the version
+    that checks with you first, shows the page to follow the run, and reminds you where to
+    submit your report.
 
-        with connect("vns_...") as session:
+        with connect(CHALLENGE_ID) as session:
             obs = session.initial_observation
             while not done:
                 obs = session.step(Action.FORWARD, repeat=4)
             print(session.checkin())
     """
+    from .rest import Client
+
+    client = Client(api_key, server=server)
+    created = client.start_session(challenge_id)
+    return redeem(
+        created["token"],
+        server=client.server,
+        recv_timeout=recv_timeout,
+        open_timeout=open_timeout,
+    )
+
+
+def redeem(
+    token: str,
+    *,
+    server: str | None = None,
+    recv_timeout: float = 60.0,
+    open_timeout: float = 20.0,
+) -> Session:
+    """Open the session a token reserved -- one from :meth:`Client.start_session` or from
+    Start on the challenge page. A token opens exactly one session."""
     from . import __version__
 
-    token = resolve_session_token(token)
+    token = check_session_token(token)
     url = websocket_url(resolve_server(server), session_id_of(token))
     headers = {"x-session-token": token, "x-sdk-version": __version__}
     pump = _Pump(url, headers, open_timeout)

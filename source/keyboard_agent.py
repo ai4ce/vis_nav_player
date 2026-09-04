@@ -45,4 +45,4 @@ class KeyboardAgent(Agent):
 
 if __name__ == "__main__":
     args = cli.parser(__doc__).parse_args()
-    run(KeyboardAgent(), cli.token(args), server=args.server, viewer=True, check=not args.no_check)
+    run(KeyboardAgent(), cli.challenge(args), **cli.run_options(args))

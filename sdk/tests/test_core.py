@@ -5,9 +5,9 @@ from vis_nav_sdk import Action, ConfigError
 from vis_nav_sdk import protocol as P
 from vis_nav_sdk.config import (
     DEFAULT_SERVER,
+    check_session_token,
     resolve_api_key,
     resolve_server,
-    resolve_session_token,
     session_id_of,
 )
 from vis_nav_sdk.errors import http_error
@@ -46,16 +46,28 @@ def test_session_ids_are_quoted():
     assert websocket_url("https://h", "a/b c") == "wss://h/v1/sim/session/a%2Fb%20c"
 
 
-def test_session_tokens_resolve_and_parse(monkeypatch):
-    monkeypatch.delenv("VIS_NAV_SESSION", raising=False)
-    with pytest.raises(ConfigError, match="Start"):
-        resolve_session_token(None)
+def test_session_tokens_are_checked_and_parsed():
     with pytest.raises(ConfigError, match="not a session token"):
-        resolve_session_token("dev-key-alice")
+        check_session_token("dev-key-alice")
     token = "vns_abc123def456_s3cr3t-part_with_underscores"
-    monkeypatch.setenv("VIS_NAV_SESSION", f" {token} ")
-    assert resolve_session_token(None) == token
+    assert check_session_token(f" {token} ") == token
     assert session_id_of(token) == "abc123def456"
+
+
+def test_reservations_are_remembered_per_server_and_forgotten(tmp_path, monkeypatch):
+    from vis_nav_sdk import reservations
+
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    live = {"session_id": "a", "token": "vns_a_t", "expires_at": 2**53}
+    dead = {"session_id": "b", "token": "vns_b_t", "expires_at": 1}
+    reservations.remember("http://s", live)
+    reservations.remember("http://s", dead)
+    assert reservations.recall("http://s", "a") == "vns_a_t"
+    assert reservations.recall("http://other", "a") is None
+    assert reservations.recall("http://s", "b") is None  # expired
+    reservations.forget("a")
+    assert reservations.recall("http://s", "a") is None
+    assert oct((tmp_path / "vis-nav" / "reservations.json").stat().st_mode)[-3:] == "600"
 
 
 def test_binary_frames_round_trip():

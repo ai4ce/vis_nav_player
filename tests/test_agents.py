@@ -18,7 +18,6 @@ import pytest  # noqa: E402
 from baseline_agent import BaselineAgent  # noqa: E402
 from keyboard_agent import KeyboardAgent  # noqa: E402
 from vis_nav_sdk import Action, run  # noqa: E402
-from vis_nav_sdk import agent as agent_module  # noqa: E402
 from vis_nav_sdk import protocol as P  # noqa: E402
 from vis_nav_sdk.session import Camera, Limits, Observation, Result, SessionInfo  # noqa: E402
 from vis_nav_sdk.telemetry import Telemetry  # noqa: E402
@@ -49,6 +48,7 @@ class FakeSession:
     def __init__(self) -> None:
         self.info = _info()
         self.limits = self.info.limits
+        self.session_id = self.info.session_id
         self.initial_observation = Observation(_image(0), 0, 200)
         self.calls: list[tuple[int, int]] = []
         self.aborted = None
@@ -74,10 +74,40 @@ class FakeSession:
         pass
 
 
+class FakeClient:
+    server = "http://fake"
+
+    def __init__(self, api_key=None, *, server=None) -> None:
+        pass
+
+    def challenge(self, challenge_id):
+        return {"id": challenge_id, "name": "maze"}
+
+    def quota(self, challenge_id):
+        return {"attempts_used": 0, "attempts_allowed": 3, "running": 0, "reservation": None}
+
+    def start_session(self, challenge_id):
+        return {
+            "session_id": "s",
+            "token": "vns_s_t",
+            "expires_at": 2**53,
+            "attempts_used": 0,
+            "attempts_allowed": 3,
+            "max_steps": 200,
+            "final_submission_link": None,
+            "page_url": "https://site/challenges/c?session=s",
+        }
+
+
 @pytest.fixture
-def session(monkeypatch) -> FakeSession:
+def session(monkeypatch, tmp_path) -> FakeSession:
+    from vis_nav_sdk import rest
+    from vis_nav_sdk import session as session_module
+
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
     fake = FakeSession()
-    monkeypatch.setattr(agent_module, "connect", lambda *a, **k: fake)
+    monkeypatch.setattr(rest, "Client", FakeClient)
+    monkeypatch.setattr(session_module, "redeem", lambda *a, **k: fake)
     return fake
 
 

@@ -98,6 +98,7 @@ class Viewer:
         self._info: SessionInfo | None = None
         self._held: set[str] = set()
         self._tapped: set[str] = set()
+        self._report_link: str | None = None
 
     # -- lifecycle
 
@@ -126,8 +127,9 @@ class Viewer:
         self._text("connecting…", (PAD, PAD), DIM)
         pygame.display.flip()
 
-    def attach(self, info: SessionInfo) -> None:
+    def attach(self, info: SessionInfo, *, report_link: str | None = None) -> None:
         self._info = info
+        self._report_link = report_link
         w = (COLUMN_W - 2 * PAD - GAP) // 2
         h = round(w * info.camera.height / info.camera.width)
         self._thumb = (w, h)
@@ -253,16 +255,26 @@ class Viewer:
         if message.startswith("FAILED"):
             colour = RED
         label = self._fonts["big"].render(message, True, TEXT)
+        lines = [label]
+        if self._report_link:
+            lines.append(
+                self._fonts["ui"].render(
+                    f"now submit your report:  {self._report_link}", True, AMBER
+                )
+            )
         hint = self._fonts["small"].render("press any key to close", True, DIM)
-        bw = max(label.get_width(), hint.get_width()) + 48
-        bh = label.get_height() + hint.get_height() + 36
+        bw = max(*(s.get_width() for s in lines), hint.get_width()) + 48
+        bh = sum(s.get_height() + 6 for s in lines) + hint.get_height() + 36
         x, y = (w - bw) // 2, (h - bh) // 2
         shade = pg.Surface((w, h), pg.SRCALPHA)
         shade.fill((0, 0, 0, 140))
         self._screen.blit(shade, (0, 0))
         pg.draw.rect(self._screen, CARD, (x, y, bw, bh), border_radius=RADIUS)
         pg.draw.rect(self._screen, colour, (x, y, bw, bh), 2, border_radius=RADIUS)
-        self._screen.blit(label, (x + (bw - label.get_width()) // 2, y + 14))
+        ly = y + 14
+        for surface in lines:
+            self._screen.blit(surface, (x + (bw - surface.get_width()) // 2, ly))
+            ly += surface.get_height() + 6
         self._screen.blit(hint, (x + (bw - hint.get_width()) // 2, y + bh - hint.get_height() - 12))
         pg.display.flip()
         deadline = pg.time.get_ticks() + int(timeout * 1000)
@@ -287,7 +299,9 @@ class Viewer:
             x = self._badge(attempts, (x, 9), AMBER if allowed and used >= allowed else BLUE)
         rate = telemetry.steps_per_second()
         if rate is not None:
-            self._badge(f"{rate:.0f} steps/s", (x, 9), DIM)
+            x = self._badge(f"{rate:.0f} steps/s", (x, 9), DIM)
+        if self._report_link:
+            self._badge("report due after this run", (x, 9), AMBER)
 
         if info is not None:
             bar_w = 220

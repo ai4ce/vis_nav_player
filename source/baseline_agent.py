@@ -165,19 +165,19 @@ def _distance(similarity: float) -> float:
 
 
 if __name__ == "__main__":
-    parser = cli.parser(__doc__, needs_api_key=True)
+    parser = cli.parser(__doc__)
     parser.add_argument("--data", help="exploration data directory (default: download)")
     parser.add_argument("--subsample", type=int, default=5, help="keep every Nth frame")
     parser.add_argument("--n-clusters", type=int, default=128, help="VLAD codebook size")
     parser.add_argument("--top-k", type=int, default=30, help="visual shortcut edges")
     args = parser.parse_args()
 
-    challenge, data_dir = cli.exploration_data(args, args.data)
+    challenge = cli.challenge(args)
     agent = BaselineAgent(
-        data_dir,
+        cli.exploration_data(args, args.data),
         n_clusters=args.n_clusters,
         subsample=args.subsample,
         top_k_shortcuts=args.top_k,
         cache_dir=Path("cache") / challenge,
     )
-    run(agent, cli.token(args), server=args.server, viewer=True, check=not args.no_check)
+    run(agent, challenge, **cli.run_options(args))
