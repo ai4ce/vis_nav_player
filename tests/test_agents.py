@@ -39,7 +39,15 @@ def _info() -> SessionInfo:
         session_id="s",
         challenge={"id": "c", "name": "maze"},
         camera=Camera(320, 240, "bgr", "jpeg", np.eye(3)),
-        limits=Limits(200, P.MAX_REPEAT, 0, 3, 120, 3600),
+        limits=Limits(
+            max_steps=200,
+            max_repeat=P.MAX_REPEAT,
+            attempts_used=0,
+            attempts_allowed=3,
+            silence_timeout_s=120,
+            grace_s=300,
+            session_timeout_s=3600,
+        ),
         targets=[_image(100 + i) for i in range(4)],
     )
 
