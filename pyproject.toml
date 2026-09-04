@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "Example agents for the NYU visual navigation challenge"
 requires-python = ">=3.10"
 dependencies = [
-    "vis-nav-sdk[viewer]",
+    "vis-nav-sdk[viewer]>=0.3,<0.4",
     "numpy>=1.24",
     "opencv-python-headless>=4.8",
     "scikit-learn>=1.3",
@@ -15,19 +15,21 @@ dependencies = [
 [tool.uv]
 package = false
 
-# The SDK lives in ./sdk and is installed from there, editable. The course server depends
-# on the same directory through git, so the wire protocol has exactly one home.
-[tool.uv.workspace]
-members = ["sdk"]
+# The SDK comes from the course site's own package index, not PyPI. To pick up a new
+# release:  uv lock --upgrade-package vis-nav-sdk && uv sync
+[[tool.uv.index]]
+name = "vis-nav"
+url = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/"
+explicit = true
 
 [tool.uv.sources]
-vis-nav-sdk = { workspace = true }
+vis-nav-sdk = { index = "vis-nav" }
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "sdk/tests"]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100

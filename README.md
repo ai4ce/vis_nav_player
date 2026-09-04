@@ -21,6 +21,10 @@ mise install                          # python + uv, pinned in mise.toml
 uv sync                               # creates .venv with everything in pyproject.toml
 ```
 
+`uv sync` installs the course SDK (`vis-nav-sdk`) from the course site's package index,
+`https://visual-navigation-challenge.ai4ce.dev/sdk/simple/`, alongside the usual scientific
+stack. When a new SDK version is announced: `uv lock --upgrade-package vis-nav-sdk && uv sync`.
+
 Get your **API key** and the **challenge id** from the course site and put them in your
 shell (never in code you commit):
 
@@ -149,4 +153,4 @@ with connect(CHALLENGE_ID) as session:
     print(session.checkin())
 ```
 
-SDK reference: [`sdk/README.md`](sdk/README.md).
+SDK reference: https://visual-navigation-challenge.ai4ce.dev/sdk/README.md
