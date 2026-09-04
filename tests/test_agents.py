@@ -216,3 +216,17 @@ def test_baseline_indexes_localises_and_hints(dataset, tmp_path, session, keys):
         dataset, n_clusters=4, subsample=1, top_k_shortcuts=3, cache_dir=tmp_path / "cache"
     )
     assert np.allclose(again.database, agent.database)
+
+
+def test_the_template_agent_is_a_complete_skeleton():
+    from pathlib import Path
+
+    from my_agent import MyAgent
+    from vis_nav_sdk import Agent, SimError, preflight
+
+    agent = MyAgent(Path("data/none"))
+    for hook in ("setup", "act", "finish", "hud", "panel"):
+        assert getattr(MyAgent, hook) is not getattr(Agent, hook), f"{hook} not spelled out"
+    with pytest.raises(SimError, match="pre-flight") as caught:
+        preflight(agent)  # no attempt is spent on an act() that is not written yet
+    assert isinstance(caught.value.__cause__, NotImplementedError)

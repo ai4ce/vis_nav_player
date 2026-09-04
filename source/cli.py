@@ -6,7 +6,7 @@ import argparse
 import os
 from pathlib import Path
 
-from vis_nav_sdk import Client
+from vis_nav_sdk import Client, SimError
 
 
 def parser(description: str) -> argparse.ArgumentParser:
@@ -47,8 +47,11 @@ def exploration_data(args: argparse.Namespace, data_dir: str | None) -> Path:
     """The dataset directory for the challenge, downloading it on first use."""
     if data_dir:
         return Path(data_dir)
-    client = Client(args.api_key, server=args.server)
-    print(f"fetching exploration data for {args.challenge}...")
-    path = client.download_exploration_data(args.challenge, "data")
-    print(f"  {path}")
+    challenge_id = challenge(args)
+    try:
+        client = Client(args.api_key, server=args.server)
+        path = client.download_exploration_data(challenge_id, "data")
+    except SimError as exc:
+        raise SystemExit(f"could not fetch the exploration data: {exc}") from None
+    print(f"exploration data: {path}")
     return path

@@ -1,151 +1,151 @@
-# Visual Navigation Game — example agents
+# Visual Navigation Challenge — starter kit
 
-Course project platform for NYU ROB-GY 6203 Robot Perception (AI4CE lab, cfeng at nyu dot
-edu).
+NYU ROB-GY 6203 Robot Perception (AI4CE lab).
 
 A robot sits in a maze on the course server. You are shown four photos taken from the goal.
 Your code receives the robot's camera frame, sends a movement, receives the next frame, and
 so on, until it decides it has arrived and checks in. The server then measures how far from
-the goal it really is.
+the goal it really is, and grades the run with the challenge's rubric.
 
-## Setup
+This repository is what you fork: an agent skeleton to fill in, a keyboard agent to get a
+feel for the maze, and a baseline that shows one way to use the exploration data.
 
-We use [mise](https://mise.jdx.dev) to install tools and [uv](https://docs.astral.sh/uv/) to
-manage Python. No conda.
+## 1. Install
+
+You need two tools: [mise](https://mise.jdx.dev), which installs the right Python, and
+[uv](https://docs.astral.sh/uv/), which installs everything else. No conda, no `pip`.
+
+**macOS / Linux**
 
 ```bash
-curl https://mise.run | sh            # once; then restart your shell
-git clone https://github.com/ai4ce/vis_nav_player.git
-cd vis_nav_player
-mise install                          # python + uv, pinned in mise.toml
-uv sync                               # creates .venv with everything in pyproject.toml
+curl https://mise.run | sh
+echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc     # bash: use bash and ~/.bashrc
+exec $SHELL
 ```
 
-`uv sync` installs the course SDK (`vis-nav-sdk`) from the course site's package index,
-`https://visual-navigation-challenge.ai4ce.dev/sdk/simple/`, alongside the usual scientific
-stack. When a new SDK version is announced: `uv lock --upgrade-package vis-nav-sdk && uv sync`.
+**Windows** — use [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Linux
+steps inside it.
 
-Get your **API key** and the **challenge id** from the course site and put them in your
-shell (never in code you commit):
+Then:
+
+```bash
+git clone https://github.com/ai4ce/vis_nav_player.git
+cd vis_nav_player
+mise install        # python 3.12 + uv, pinned in mise.toml
+uv sync             # creates .venv with everything in pyproject.toml, including the course SDK
+```
+
+That is the whole install. `uv run <script>` runs a script inside `.venv`; you never activate
+anything.
+
+## 2. Your credentials
+
+You need two strings. Your **API key** is the one you were sent for the course and use to
+sign in to the course site — treat it like a password. The **challenge id** is in the URL of
+the challenge page (`/challenges/<id>`). Put them in your shell, not in your code:
 
 ```bash
 export VIS_NAV_API_KEY="..."
 export VIS_NAV_CHALLENGE="..."
 ```
 
-Every script also takes `--api-key`, `--challenge`, `--server`, `--yes` (do not ask) and
-`--no-browser`.
+Add those two lines to `~/.zshrc` (or `~/.bashrc`) so you do not retype them.
 
-## Starting a run
-
-Every script begins the same way. It checks the challenge — whether your team already has a
-run going, whether you left a session unconnected earlier — and asks before starting attempt
-_n_ of _m_. Then it opens the challenge page, where you can watch the robot's camera and your
-step count live and see the result when you check in, and tells you where to submit your
-report if the challenge asks for one. Nothing is spent until your code connects.
-
-## Drive it yourself
+## 3. Drive it yourself
 
 ```bash
 uv run source/keyboard_agent.py
 ```
 
-Arrows move (hold two for an arc), **space** checks in, **escape** quits. The window shows
-the camera, the four views from the goal, and what each step costs: the round trip, the
-server's share, the network's share, and your own code's time.
+It shows the challenge and how many attempts you have, asks before starting one, and opens
+a window: the camera on the left, the four goal views and the step count on the right.
+Arrows move (hold two for an arc), **space** checks in, **escape** quits. When you check in,
+the result appears in the terminal and on the challenge page, which the script opens for
+you.
 
-Each run is one **attempt**, and attempts may be limited per challenge; it is spent when
-your code connects. Quitting, closing the window or losing the connection also spends it.
-Your best attempt counts.
+Each run is one **attempt**. Attempts may be limited per challenge and one is spent the
+moment your code connects; quitting or closing the window spends it too. Your best attempt
+is the one that counts. If your connection drops mid-run, the session waits five minutes
+for you: run the same command again and it picks up where it left off.
 
-## Baseline
+## 4. Write your agent
+
+`source/my_agent.py` is the skeleton. Every method you can implement is there, with a
+comment saying when it is called and what it may return; only `act()` is required:
+
+```python
+class MyAgent(Agent):
+    def __init__(self, data_dir):        # load exploration data, build your index
+    def setup(self, info):               # once per session: info.targets, info.camera, info.limits
+    def act(self, obs):                  # every step: obs.image -> Action
+    def finish(self, result):            # after the session ended
+    def hud(self):                       # optional: text for the viewer window
+    def panel(self):                     # optional: images for the viewer window
+```
+
+```bash
+uv run source/my_agent.py
+```
+
+On first run it downloads the challenge's **exploration data** into `data/<challenge>/`:
+frames and action labels from earlier drives through this maze, plus `target.jpg`. This is
+the only imagery you have of the maze before a session starts. Build whatever you like from
+it — a place-recognition index, a topological map, a learned model.
+
+`act()` returns an `Action` (`FORWARD`, `BACKWARD`, `LEFT`, `RIGHT`; combine with `|` for
+an arc), or `(Action, n)` to hold it for `n` ticks in one round trip, or `Action.CHECKIN`
+when you believe you are at the goal. Every tick counts toward your step total.
+
+Before connecting, `run()` tries your agent on random frames. If `act()` crashes there, no
+attempt is spent — so do the heavy lifting in `__init__` and keep `act()` fast: the
+server measures how long your code takes per step.
+
+### What your agent may use
+
+Everything is on this list. There is nothing else; the robot's pose, the map and the goal
+position live on the server and are never sent.
+
+| when | what |
+|---|---|
+| before a session | the exploration data: `traj_i/k.jpg` frames, `traj_i/data_info.json` (the action taken after each frame), `target.jpg` |
+| `setup(info)` | `info.targets` — four goal views (front, left, back, right); `info.camera` — size and intrinsics; `info.limits` — step budget, attempts |
+| `act(obs)` | `obs.image` — `(240, 320, 3)` `uint8`, BGR; `obs.step`, `obs.steps_left` |
+
+Movement is applied as you request it, with a little noise on most challenges, and the next
+frame is the only feedback. Working out where you are from those pixels is the assignment.
+
+## 5. The baseline
 
 ```bash
 uv run source/baseline_agent.py
 ```
 
-You still drive; the baseline says where it thinks you are and which way to go. On first run
-it downloads the exploration data into `data/<challenge>/` and builds its index into
-`cache/<challenge>/` (a minute or so; cached afterwards).
+You still drive; the baseline says where it thinks you are and which way to go, from a
+RootSIFT + VLAD index over the exploration frames and a graph of who-follows-whom
+(`source/vlad.py`, `source/baseline_agent.py`). Building the index takes about a minute the
+first time and is cached in `cache/<challenge>/`. It is a starting point, not a solution.
 
-How it works (`source/vlad.py`, `source/baseline_agent.py`):
+## 6. Keeping up to date
 
-1. **RootSIFT** descriptors for every exploration frame
-2. **k-means** codebook (k = 128)
-3. **VLAD** vector per frame, with intra- and power normalisation
-4. **Graph**: consecutive frames joined by the recorded action; the most similar-looking
-   distant pairs joined by visual shortcut edges
-5. **Localise and plan**: match the live frame to its nearest node, the goal to the node
-   most like the target's front view, Dijkstra between them
+The course SDK (`vis-nav-sdk`) is installed from the course site. When a new version is
+out, the scripts tell you. Update with:
 
-The strip under the camera shows the best match, the goal frame, and the next nodes along
-the path with the action that gets you there.
-
-## What you have to work with
-
-Everything your agent may use is on this list. There is nothing else; the robot's pose,
-the map and the goal position live on the server and are never sent.
-
-**Before a session — the exploration data** (`Client().download_exploration_data(id)`,
-or let the baseline fetch it). A zip of one or more drives through the maze:
-
-```
-target.jpg                     the four goal views side by side
-traj_0/0.jpg, 1.jpg, ...       camera frames from one drive
-traj_0/data_info.json          [{"step": k, "image": "k.jpg", "action": ["FORWARD"]}, ...]
-traj_1/...
+```bash
+uv lock --upgrade-package vis-nav-sdk && uv sync
 ```
 
-Frames are consecutive, and `action` is the movement the robot made *after* that frame. Use
-them to learn what the maze looks like, build a place-recognition index, estimate how far a
-movement takes you, or anything else you can get out of images and action labels.
+If the server refuses your SDK version outright, that is the same fix.
 
-**When a session opens** — `setup(info)`:
+## Command-line options
 
-- `info.targets`: the four goal views, from the goal pose facing front, left, back, right
-- `info.camera`: image size and intrinsic matrix
-- `info.limits`: the step budget and your attempt count
+Every script accepts `--challenge` and `--api-key` (instead of the environment variables),
+`--server`, `--yes` (start without asking), `--no-browser`, `--no-check` (skip the
+pre-flight), and `--data <dir>` for the exploration data where relevant.
 
-**Every step** — `act(obs)`:
-
-- `obs.image`: the camera frame, `(240, 320, 3)` `uint8`, BGR
-- `obs.step`, `obs.steps_left`: ticks spent and remaining
-
-And that is all. Movement is applied as you request it — with a bit of noise on some
-challenges — and the frame you get back is the only feedback. Working out where you are and
-how far you have moved from those pixels is the assignment.
-
-## Write your own
+## Prefer to drive the loop yourself?
 
 ```python
-from vis_nav_sdk import Agent, Action, run
-
-
-class MyAgent(Agent):
-    def __init__(self): ...  # load exploration data, build your index
-
-    def setup(self, info):
-        self.goal = info.targets[0]  # once per session
-
-    def act(self, obs):
-        if self.at_goal(obs.image):
-            return Action.CHECKIN  # scores the run and ends it
-        return Action.FORWARD, 4  # hold for 4 ticks in one round trip
-
-
-run(MyAgent(), CHALLENGE_ID)  # key from $VIS_NAV_API_KEY
-```
-
-Actions are a bit field — `FORWARD | LEFT` is an arc. Every tick counts toward
-`nav_steps`, which ranks you once you have reached the goal; `(action, n)` applies it for
-`n` ticks in one round trip, which changes how long you wait on the network and nothing
-else. Do your heavy lifting in `__init__`: nothing there touches the server, and `run()`
-tries your agent on random frames before connecting, so a crash costs no attempt.
-
-Prefer to drive the loop yourself?
-
-```python
-from vis_nav_sdk import connect, Action
+from vis_nav_sdk import Action, connect
 
 with connect(CHALLENGE_ID) as session:
     obs = session.initial_observation

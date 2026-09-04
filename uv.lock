@@ -906,7 +906,7 @@ dev = [
 
 [[package]]
 name = "vis-nav-sdk"
-version = "0.4.0"
+version = "0.4.2"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -916,9 +916,9 @@ dependencies = [
     { name = "websockets", version = "16.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "websockets", version = "17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.4.0.tar.gz", hash = "sha256:2a82f45d88123ce5a8776116955c2d46aa84db761eae2d8eb27cc50644ec43d3" }
+sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.4.2.tar.gz", hash = "sha256:bc5ddd25fdfcad65bcfb71e878db975e20a2a4b1b0cdd0248d0dad797cb9efba" }
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.4.0-py3-none-any.whl", hash = "sha256:2a11b2a59c0f3046d0457f319ed3485dd81e08428b137e8d20af82dc7226bc9e" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.4.2-py3-none-any.whl", hash = "sha256:a2a887032952942f7173eb78e6750611058595b52b9f4d97a97e360fa20a545e" },
 ]
 
 [package.optional-dependencies]
