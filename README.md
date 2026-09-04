@@ -1,42 +1,143 @@
-# Visual Navigation Game (Example Player Code)
+# Visual Navigation Game — example agents
 
-This is the course project platform for NYU ROB-GY 6203 Robot Perception. 
-For more information, please reach out to AI4CE lab (cfeng at nyu dot edu).
+Course project platform for NYU ROB-GY 6203 Robot Perception (AI4CE lab, cfeng at nyu dot
+edu).
 
-# Instructions for Players
-1. Install
-```commandline
-conda update conda
+A robot sits in a maze on the course server. You are shown four photos taken from the goal.
+Your code receives the robot's camera frame, sends a movement, receives the next frame, and
+so on, until it decides it has arrived and checks in. The server then measures how far from
+the goal it really is.
+
+## Setup
+
+We use [mise](https://mise.jdx.dev) to install tools and [uv](https://docs.astral.sh/uv/) to
+manage Python. No conda.
+
+```bash
+curl https://mise.run | sh            # once; then restart your shell
 git clone https://github.com/ai4ce/vis_nav_player.git
 cd vis_nav_player
-conda env create -f environment.yaml
-conda activate game
+mise install                          # python + uv, pinned in mise.toml
+uv sync                               # creates .venv with everything in pyproject.toml
 ```
 
-2. Play using the default keyboard player
-```commandline
-python source/player.py
+Get your **API key** and the **challenge id** from the course site and put them in your
+shell (never in code you commit):
+
+```bash
+export VIS_NAV_API_KEY="..."
+export VIS_NAV_CHALLENGE="..."
 ```
 
-3. Modify the player.py to implement your own solutions, 
-unless you have photographic memories!
+Every script also takes `--api-key`, `--challenge` and `--server`.
 
-# Baseline Solution
-## How to run the baseline
-1. Download the exploration data and extract it to `./data`. Under your data folder, you should at least have:
-   ```
-   data
-   ├── data_info.json
-   ├── images
-   ```
-2. Run the baseline solution by `python source/baseline.py`. The first run may take longer as we need to download data for the maze and computes the features for localization and navigation.
-3. Press `q` to show the navigation panel.
+## Drive it yourself
 
-## How the baseline works
-The baseline (`source/baseline.py`) implements a visual place recognition pipeline:
+```bash
+uv run source/keyboard_agent.py
+```
 
-1. **Feature Extraction** — RootSIFT descriptors from exploration images
-2. **Codebook** — K-Means clustering (k=128) to build a visual vocabulary
-3. **VLAD Encoding** — Aggregate local descriptors into a global vector per image (with intra-normalization and power normalization)
-4. **Graph Construction** — Temporal edges (consecutive frames) + visual shortcut edges (top-K most similar non-adjacent frames)
-5. **Localization & Planning** — Match current FPV to database via VLAD similarity, then Dijkstra shortest path to goal node
+Arrows move (hold two for an arc), **space** checks in, **escape** quits. The window shows
+the camera, the four views from the goal, and what each step costs: the round trip, the
+server's share, the network's share, and your own code's time.
+
+Each run is one **attempt**, and attempts may be limited per challenge; it is spent when
+your code connects. Quitting, closing the window or losing the connection also spends it.
+Your best attempt counts.
+
+## Baseline
+
+```bash
+uv run source/baseline_agent.py
+```
+
+You still drive; the baseline says where it thinks you are and which way to go. On first run
+it downloads the exploration data into `data/<challenge>/` and builds its index into
+`cache/<challenge>/` (a minute or so; cached afterwards).
+
+How it works (`source/vlad.py`, `source/baseline_agent.py`):
+
+1. **RootSIFT** descriptors for every exploration frame
+2. **k-means** codebook (k = 128)
+3. **VLAD** vector per frame, with intra- and power normalisation
+4. **Graph**: consecutive frames joined by the recorded action; the most similar-looking
+   distant pairs joined by visual shortcut edges
+5. **Localise and plan**: match the live frame to its nearest node, the goal to the node
+   most like the target's front view, Dijkstra between them
+
+The strip under the camera shows the best match, the goal frame, and the next nodes along
+the path with the action that gets you there.
+
+## What you have to work with
+
+Everything your agent may use is on this list. There is nothing else; the robot's pose,
+the map and the goal position live on the server and are never sent.
+
+**Before a session — the exploration data** (`Client().download_exploration_data(id)`,
+or let the baseline fetch it). A zip of one or more drives through the maze:
+
+```
+target.jpg                     the four goal views side by side
+traj_0/0.jpg, 1.jpg, ...       camera frames from one drive
+traj_0/data_info.json          [{"step": k, "image": "k.jpg", "action": ["FORWARD"]}, ...]
+traj_1/...
+```
+
+Frames are consecutive, and `action` is the movement the robot made *after* that frame. Use
+them to learn what the maze looks like, build a place-recognition index, estimate how far a
+movement takes you, or anything else you can get out of images and action labels.
+
+**When a session opens** — `setup(info)`:
+
+- `info.targets`: the four goal views, from the goal pose facing front, left, back, right
+- `info.camera`: image size and intrinsic matrix
+- `info.limits`: the step budget and your attempt count
+
+**Every step** — `act(obs)`:
+
+- `obs.image`: the camera frame, `(240, 320, 3)` `uint8`, BGR
+- `obs.step`, `obs.steps_left`: ticks spent and remaining
+
+And that is all. Movement is applied as you request it — with a bit of noise on some
+challenges — and the frame you get back is the only feedback. Working out where you are and
+how far you have moved from those pixels is the assignment.
+
+## Write your own
+
+```python
+from vis_nav_sdk import Agent, Action, run
+
+
+class MyAgent(Agent):
+    def __init__(self):
+        ...                              # load exploration data, build your index
+
+    def setup(self, info):
+        self.goal = info.targets[0]      # once per session
+
+    def act(self, obs):
+        if self.at_goal(obs.image):
+            return Action.CHECKIN        # scores the run and ends it
+        return Action.FORWARD, 4         # hold for 4 ticks in one round trip
+
+run(MyAgent(), "vns_...")                # the token from Start, or $VIS_NAV_SESSION
+```
+
+Actions are a bit field — `FORWARD | LEFT` is an arc. Every tick counts toward
+`nav_steps`, which ranks you once you have reached the goal; `(action, n)` applies it for
+`n` ticks in one round trip, which changes how long you wait on the network and nothing
+else. Do your heavy lifting in `__init__`: nothing there touches the server, and `run()`
+tries your agent on random frames before redeeming the token, so a crash costs no attempt.
+
+Prefer to drive the loop yourself?
+
+```python
+from vis_nav_sdk import connect, Action
+
+with connect("vns_...") as session:
+    obs = session.initial_observation
+    obs = session.step(Action.FORWARD, repeat=4)
+    print(session.checkin())
+```
+
+SDK reference: [`sdk/README.md`](sdk/README.md).
