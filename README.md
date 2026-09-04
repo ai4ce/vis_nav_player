@@ -12,44 +12,51 @@ feel for the maze, and a baseline that shows one way to use the exploration data
 
 ## 1. Install
 
-You need two tools: [mise](https://mise.jdx.dev), which installs the right Python, and
-[uv](https://docs.astral.sh/uv/), which installs everything else. No conda, no `pip`.
+One tool: [uv](https://docs.astral.sh/uv/). It installs the right Python (3.12, pinned in
+`.python-version`) and everything else. No conda, no `pip`, no virtualenv to activate.
 
 **macOS / Linux**
 
 ```bash
-curl https://mise.run | sh
-echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc     # bash: use bash and ~/.bashrc
-exec $SHELL
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Windows** — use [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Linux
-steps inside it.
+**Windows** (PowerShell) — natively; no WSL needed, and the viewer window works better without it.
 
-Then:
+```powershell
+irm https://astral.sh/uv/install.ps1 | iex
+```
+
+(`winget install astral-sh.uv` and `brew install uv` work too.) Open a new terminal, then:
 
 ```bash
 git clone https://github.com/ai4ce/vis_nav_player.git
 cd vis_nav_player
-mise install        # python 3.12 + uv, pinned in mise.toml
-uv sync             # creates .venv with everything in pyproject.toml, including the course SDK
+uv sync             # downloads Python 3.12 if you have none, creates .venv with everything in pyproject.toml, including the course SDK
 ```
 
 That is the whole install. `uv run <script>` runs a script inside `.venv`; you never activate
-anything.
+anything. The commands below are the same on every platform.
 
 ## 2. Your credentials
 
 You need two strings. Your **API key** is the one you were sent for the course and use to
-sign in to the course site — treat it like a password. The **challenge id** is in the URL of
-the challenge page (`/challenges/<id>`). Put them in your shell, not in your code:
+sign in to the course site — it is also under the account menu there. Treat it like a
+password. The **challenge id** is in the URL of the challenge page (`/challenges/<id>`). Put
+them in your shell, not in your code:
 
 ```bash
+# macOS / Linux -- add to ~/.zshrc or ~/.bashrc so you do not retype them
 export VIS_NAV_API_KEY="..."
 export VIS_NAV_CHALLENGE="..."
 ```
 
-Add those two lines to `~/.zshrc` (or `~/.bashrc`) so you do not retype them.
+```powershell
+# Windows -- setx stores them for every future terminal; the current one needs $env: too
+setx VIS_NAV_API_KEY "..."
+setx VIS_NAV_CHALLENGE "..."
+$env:VIS_NAV_API_KEY = "..."; $env:VIS_NAV_CHALLENGE = "..."
+```
 
 ## 3. Drive it yourself
 
@@ -153,4 +160,4 @@ with connect(CHALLENGE_ID) as session:
     print(session.checkin())
 ```
 
-SDK reference: https://visual-navigation-challenge.ai4ce.dev/sdk/README.md
+SDK guide: https://visual-navigation-challenge.ai4ce.dev/getting-started
