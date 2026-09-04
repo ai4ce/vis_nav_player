@@ -1,0 +1,36 @@
+[project]
+name = "vis-nav-sdk"
+dynamic = ["version"]
+description = "Client and agent interface for the NYU visual navigation challenge"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "numpy>=1.24",
+    "websockets>=12.0",
+]
+
+# A JPEG decoder is required but not declared: OpenCV is in every student environment for
+# this course, and forcing a second copy of it has caused more setup failures than it
+# prevents. session.py raises with install instructions if neither OpenCV nor Pillow is
+# importable.
+[project.optional-dependencies]
+opencv = ["opencv-python-headless>=4.8"]
+pillow = ["pillow>=10.0"]
+viewer = ["pygame>=2.5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "vis_nav_sdk/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["vis_nav_sdk"]
+
+# uv re-builds a path dependency only when its cache keys change, and by default that is
+# just this file -- so an edit to the package would keep serving the previous build to
+# anyone installing it with `uv run --with sdk/` or a git/path dependency.
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { file = "vis_nav_sdk/**/*.py" }]
