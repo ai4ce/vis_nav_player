@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [master, main]
+    branches: [master, main, server-sim]
   pull_request:
 
 permissions:

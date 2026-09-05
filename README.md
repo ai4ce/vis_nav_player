@@ -31,7 +31,7 @@ irm https://astral.sh/uv/install.ps1 | iex
 (`winget install astral-sh.uv` and `brew install uv` work too.) Open a new terminal, then:
 
 ```bash
-git clone https://github.com/ai4ce/vis_nav_player.git
+git clone --branch server-sim https://github.com/ai4ce/vis_nav_player.git
 cd vis_nav_player
 uv sync             # downloads Python 3.12 if you have none, creates .venv with everything in pyproject.toml, including the course SDK
 ```
