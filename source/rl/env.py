@@ -1,11 +1,11 @@
 """
 A Gymnasium environment on the local simulator, for reinforcement learning.
 
-    uv run source/rl_env.py --mazes 7,8,9      # random policy, prints rewards
+    uv run source/rl/env.py --mazes 7,8,9      # random policy, prints rewards
 
 The simulator runs in this process (`vis_nav_sim`), so an episode is a few thousand frames
 a second and a new maze is a millisecond. The reward uses the robot's true position, which
-only exists locally; a policy trained here is deployed on the server with `rl_train.py`'s
+only exists locally; a policy trained here is deployed on the server with `rl/play.py`'s
 `RLAgent`, which sees exactly what any agent sees: frames.
 
     observation   uint8 (6, 60, 80): the camera frame and target view 0, downscaled,
@@ -16,7 +16,7 @@ only exists locally; a policy trained here is deployed on the server with `rl_tr
     episode       ends on arrival or after `max_decisions` steps. reset() picks the next
                   maze from `mazes` (domain randomization) and a fresh motion noise seed.
 
-Requires gymnasium and vis-nav-sim: `uv sync --extra rl`.
+Requires gymnasium and vis-nav-sim: `uv sync --group rl`.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ try:
     import gymnasium as gym
     from gymnasium import spaces
 except ImportError:  # pragma: no cover
-    raise SystemExit("rl_env needs gymnasium: run `uv sync --extra rl`") from None
+    raise SystemExit("rl/env.py needs gymnasium: run `uv sync --group rl`") from None
 
 import vis_nav_sim as sim
 
@@ -55,13 +55,25 @@ def observe(frame: np.ndarray, target: np.ndarray, size: tuple[int, int]) -> np.
 class VisNavEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array"]}
 
+    SIZE = (80, 60)
+    """The observation's (width, height); what `observe()` downscales to."""
+
+    @staticmethod
+    def spaces(size: tuple[int, int] = SIZE) -> tuple[spaces.Box, spaces.Discrete]:
+        """The observation and action spaces, without a simulator: what a policy is built on."""
+        width, height = size
+        return (
+            spaces.Box(0, 255, shape=(6, height, width), dtype=np.uint8),
+            spaces.Discrete(len(ACTIONS)),
+        )
+
     def __init__(
         self,
         mazes: Sequence[int] = (7,),
         *,
         textures: sim.Textures | None = None,
         ticks: int = 4,
-        size: tuple[int, int] = (80, 60),
+        size: tuple[int, int] = SIZE,
         max_decisions: int = 500,
         motion_noise: bool = True,
         render_mode: str | None = None,
@@ -80,9 +92,7 @@ class VisNavEnv(gym.Env):
         self._distance = 0.0
         self._target0: np.ndarray | None = None
         self._frame: np.ndarray | None = None
-        width, height = size
-        self.observation_space = spaces.Box(0, 255, shape=(6, height, width), dtype=np.uint8)
-        self.action_space = spaces.Discrete(len(ACTIONS))
+        self.observation_space, self.action_space = self.spaces(size)
 
     # -- gymnasium
 
