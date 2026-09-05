@@ -1,0 +1,39 @@
+[project]
+name = "vis-nav-player"
+version = "0.0.0"
+description = "Example agents for the NYU visual navigation challenge"
+requires-python = ">=3.10"
+dependencies = [
+    "vis-nav-sdk[viewer]>=0.5.1",
+    "numpy>=1.24",
+    "opencv-python-headless>=4.8",
+    "scikit-learn>=1.3",
+    "networkx>=3.0",
+    "tqdm>=4.65",
+]
+
+[tool.uv]
+package = false
+
+# The SDK comes from the course site's own package index, not PyPI. To pick up a new
+# release:  uv lock --upgrade-package vis-nav-sdk && uv sync
+[[tool.uv.index]]
+name = "vis-nav"
+url = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/"
+explicit = true
+
+[tool.uv.sources]
+vis-nav-sdk = { index = "vis-nav" }
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -1,42 +1,57 @@
-# Visual Navigation Game (Example Player Code)
+# Visual Navigation Challenge — starter kit
 
-This is the course project platform for NYU ROB-GY 6203 Robot Perception. 
-For more information, please reach out to AI4CE lab (cfeng at nyu dot edu).
+NYU **ROB-UY 3203 Robot Vision** and **ROB-GY 6203 Robot Perception**, run by the
+[AI4CE Lab](https://ai4ce.github.io/).
 
-# Instructions for Players
-1. Install
-```commandline
-conda update conda
+A robot sits in a maze on the course server. Your code receives its camera frames and four
+photos of the goal, chooses each move, and checks in when it thinks it has arrived. This
+repository is what you fork: a keyboard agent to drive the maze yourself, a place-recognition
+baseline, and the skeleton your own agent goes in.
+
+**The tutorial is on the course site:** <https://visual-navigation-challenge.ai4ce.dev/>
+Environment setup, a first drive, the agent interface, how the baseline works, and how runs
+are scored, step by step. Everything below is the short version.
+
+## Install
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh      # Windows (PowerShell): irm https://astral.sh/uv/install.ps1 | iex
 git clone https://github.com/ai4ce/vis_nav_player.git
 cd vis_nav_player
-conda env create -f environment.yaml
-conda activate game
+uv sync
 ```
 
-2. Play using the default keyboard player
-```commandline
-python source/player.py
+## Credentials
+
+Copy `.env.example` to `.env` and fill in your API key (from the course site, under the
+account menu) and the challenge id (the last part of a challenge page's URL). Every script
+reads the file; git ignores it.
+
+```
+VIS_NAV_API_KEY=...
+VIS_NAV_CHALLENGE=...
 ```
 
-3. Modify the player.py to implement your own solutions, 
-unless you have photographic memories!
+## Run
 
-# Baseline Solution
-## How to run the baseline
-1. Download the exploration data and extract it to `./data`. Under your data folder, you should at least have:
-   ```
-   data
-   ├── data_info.json
-   ├── images
-   ```
-2. Run the baseline solution by `python source/baseline.py`. The first run may take longer as we need to download data for the maze and computes the features for localization and navigation.
-3. Press `q` to show the navigation panel.
+```bash
+uv run source/keyboard_agent.py   # drive by hand: arrows move, space checks in, esc quits
+uv run source/baseline_agent.py   # drive with the baseline's hints
+uv run source/my_agent.py         # your agent (source/my_agent.py)
+```
 
-## How the baseline works
-The baseline (`source/baseline.py`) implements a visual place recognition pipeline:
+Every script accepts `--challenge` and `--api-key` in place of `.env`, plus `--yes`,
+`--no-browser`, `--no-check` and, where relevant, `--data <dir>`. When a new SDK version is
+out the scripts say so; `uv lock --upgrade-package vis-nav-sdk && uv sync` updates it.
 
-1. **Feature Extraction** — RootSIFT descriptors from exploration images
-2. **Codebook** — K-Means clustering (k=128) to build a visual vocabulary
-3. **VLAD Encoding** — Aggregate local descriptors into a global vector per image (with intra-normalization and power normalization)
-4. **Graph Construction** — Temporal edges (consecutive frames) + visual shortcut edges (top-K most similar non-adjacent frames)
-5. **Localization & Planning** — Match current FPV to database via VLAD similarity, then Dijkstra shortest path to goal node
+## What is here
+
+| file | what |
+|---|---|
+| `source/my_agent.py` | the skeleton: `__init__`, `setup`, `act`, `finish`, `hud`, `panel`, each with a comment saying when it runs |
+| `source/keyboard_agent.py` | drive with the arrow keys |
+| `source/baseline_agent.py`, `source/vlad.py` | RootSIFT + VLAD place recognition over the exploration frames, a graph of them, and the next move along the shortest path |
+| `source/cli.py` | the shared command line and `.env` loading |
+
+The SDK's own documentation (`connect()`, `Session`, the REST client) is at
+<https://visual-navigation-challenge.ai4ce.dev/sdk>.
