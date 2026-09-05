@@ -1,7 +1,8 @@
 """
 Your agent. Fill in the methods below, then:
 
-    uv run source/my_agent.py --challenge <id>
+    uv run source/my_agent.py --challenge <id>      # on the server, one attempt
+    uv run source/my_agent.py --local 7             # on your machine, maze 7, free
 
 Everything your agent may use is on this list; there is nothing else.
 

@@ -39,6 +39,17 @@ def parser(description: str) -> argparse.ArgumentParser:
         default=os.environ.get("VIS_NAV_CHALLENGE"),
         help="challenge id from the course site (or VIS_NAV_CHALLENGE in .env)",
     )
+    p.add_argument(
+        "--local",
+        nargs="?",
+        const=os.environ.get("VIS_NAV_SEED", "7"),
+        metavar="SEED",
+        help=(
+            "run on the local simulator instead of the server, in the maze this seed "
+            "generates (default 7; the same seed is the same maze on every machine). "
+            "No attempt is spent. Needs `uv sync --extra local` and the texture pack."
+        ),
+    )
     p.add_argument("--api-key", default=None, help="your API key (or VIS_NAV_API_KEY in .env)")
     p.add_argument(
         "--server", default=None, help="API base URL (or $VIS_NAV_SERVER; default: course server)"
@@ -52,8 +63,11 @@ def parser(description: str) -> argparse.ArgumentParser:
 
 
 def challenge(args: argparse.Namespace) -> str:
+    """What to run on: ``local:<seed>`` with ``--local``, else the challenge id."""
+    if args.local is not None:
+        return f"local:{int(args.local)}"
     if not args.challenge:
-        raise SystemExit("--challenge (or VIS_NAV_CHALLENGE in .env) is required")
+        raise SystemExit("--challenge (or VIS_NAV_CHALLENGE in .env) is required, or --local")
     return args.challenge
 
 
@@ -69,14 +83,40 @@ def run_options(args: argparse.Namespace) -> dict:
 
 
 def exploration_data(args: argparse.Namespace, data_dir: str | None) -> Path:
-    """The dataset directory for the challenge, downloading it on first use."""
+    """The dataset directory for the challenge: downloaded on first use, or, with
+    ``--local``, recorded on first use by the local simulator in the same format."""
     if data_dir:
         return Path(data_dir)
     challenge_id = challenge(args)
+    if args.local is not None:
+        return record_exploration_data(int(args.local))
     try:
         client = Client(args.api_key, server=args.server)
         path = client.download_exploration_data(challenge_id, "data")
     except SimError as exc:
         raise SystemExit(f"could not fetch the exploration data: {exc}") from None
     print(f"exploration data: {path}")
+    return path
+
+
+def record_exploration_data(seed: int, dest: str | Path = "data") -> Path:
+    """``data/local-<seed>/``: what a challenge on this maze would hand out -- three drives
+    through it, a frame every five ticks, ``target.jpg`` -- recorded here the first time."""
+    path = Path(dest) / f"local-{seed}"
+    if (path / "target.jpg").exists():
+        return path
+    try:
+        import vis_nav_sim as sim
+    except ImportError:
+        raise SystemExit(
+            "--local needs the vis-nav-sim package: run `uv sync --extra local`"
+        ) from None
+    try:
+        textures = sim.Textures.find()
+    except FileNotFoundError as exc:
+        raise SystemExit(str(exc)) from None
+    print(f"recording exploration data for local maze {seed} into {path} ...", flush=True)
+    world = sim.Simulator(textures, seed, motion_noise=sim.DEFAULT_NOISE, motion_seed=seed)
+    summary = world.record(path, routes=3, seed=seed, capture_every=5)
+    print(f"exploration data: {path} ({summary['frames']} frames on {summary['routes']} routes)")
     return path

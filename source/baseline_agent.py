@@ -178,6 +178,6 @@ if __name__ == "__main__":
         n_clusters=args.n_clusters,
         subsample=args.subsample,
         top_k_shortcuts=args.top_k,
-        cache_dir=Path("cache") / challenge,
+        cache_dir=Path("cache") / challenge.replace(":", "-"),
     )
     run(agent, challenge, **cli.run_options(args))
