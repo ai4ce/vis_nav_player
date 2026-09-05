@@ -1,6 +1,7 @@
 # Visual Navigation Challenge — starter kit
 
-NYU ROB-GY 6203 Robot Perception (AI4CE lab).
+NYU **ROB-UY 3203 Robot Vision** and **ROB-GY 6203 Robot Perception**, run by the
+[AI4CE Lab](https://ai4ce.github.io/).
 
 A robot sits in a maze on the course server. You are shown four photos taken from the goal.
 Your code receives the robot's camera frame, sends a movement, receives the next frame, and
@@ -67,8 +68,8 @@ uv run source/keyboard_agent.py
 It shows the challenge and how many attempts you have, asks before starting one, and opens
 a window: the camera on the left, the four goal views and the step count on the right.
 Arrows move (hold two for an arc), **space** checks in, **escape** quits. When you check in,
-the result appears in the terminal and on the challenge page, which the script opens for
-you.
+the result appears in the terminal and on the run's own page on the site, which the script
+opens for you when it starts — the page is live while you drive.
 
 Each run is one **attempt**. Attempts may be limited per challenge — per team on a
 competition — and one is spent the moment your code connects; quitting or closing the window
@@ -120,8 +121,9 @@ position live on the server and are never sent.
 | `setup(info)` | `info.targets` — four goal views (front, left, back, right); `info.camera` — size and intrinsics; `info.limits` — step budget, attempts |
 | `act(obs)` | `obs.image` — `(240, 320, 3)` `uint8`, BGR; `obs.step`, `obs.steps_left` |
 
-Movement is applied as you request it, with a little noise on most challenges, and the next
-frame is the only feedback. Working out where you are from those pixels is the assignment.
+Movement is applied as you request it — with a little noise on some challenges
+(`info.limits.motion_noise` says) — and the next frame is the only feedback. Working out
+where you are from those pixels is the assignment.
 
 ## 5. The baseline
 

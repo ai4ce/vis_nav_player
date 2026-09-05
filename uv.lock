@@ -895,7 +895,7 @@ requires-dist = [
     { name = "opencv-python-headless", specifier = ">=4.8" },
     { name = "scikit-learn", specifier = ">=1.3" },
     { name = "tqdm", specifier = ">=4.65" },
-    { name = "vis-nav-sdk", extras = ["viewer"], specifier = ">=0.4", index = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" },
+    { name = "vis-nav-sdk", extras = ["viewer"], specifier = ">=0.5.1", index = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" },
 ]
 
 [package.metadata.requires-dev]

@@ -21,7 +21,9 @@ def parser(description: str) -> argparse.ArgumentParser:
         "--server", default=None, help="API base URL (or $VIS_NAV_SERVER; default: course server)"
     )
     p.add_argument("--yes", action="store_true", help="start without asking")
-    p.add_argument("--no-browser", action="store_true", help="do not open the challenge page")
+    p.add_argument(
+        "--no-browser", action="store_true", help="do not open the run's page on the site"
+    )
     p.add_argument("--no-check", action="store_true", help="skip the pre-flight check")
     return p
 
