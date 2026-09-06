@@ -3,19 +3,19 @@ revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 conflicts = [[
@@ -534,14 +534,14 @@ version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be9d2e4f1158eb633317598cfa6e1fc14af5383f17512/networkx-3.6.1.tar.gz", hash = "sha256:26b7c357accc0c8cde558ad486283728b65b6a95d85ee1cd66bafab4c8168509", size = 2517025, upload-time = "2025-12-08T17:02:39.908Z" }
@@ -1415,14 +1415,14 @@ version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 dependencies = [
@@ -1707,16 +1707,16 @@ version = "84.0.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6d/44/f5da03a8ef95d369145c5bb53050e7877c9f3d312e128605fd9504829143/setuptools-84.0.0.tar.gz", hash = "sha256:f4695c21257f0d9b537ec2692c941d02ee143b7cc1276941349a546573b2ef73", size = 1168449, upload-time = "2026-08-08T18:27:58.365Z" }
@@ -1941,10 +1941,10 @@ version = "2.14.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version < '3.11' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 dependencies = [
@@ -2199,7 +2199,7 @@ rl-cuda = [
 
 [[package]]
 name = "vis-nav-sdk"
-version = "0.7.0"
+version = "0.7.1"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
@@ -2209,9 +2209,9 @@ dependencies = [
     { name = "websockets", version = "16.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
     { name = "websockets", version = "17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
 ]
-sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.0.tar.gz", hash = "sha256:67419d20cace38ced1873a8ebf05893dbce452a22cd0ec488390bacc21a65068" }
+sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.1.tar.gz", hash = "sha256:caae62197d070347f358f588c4233b8b72c34597428041e80b4edf14a00fe72b" }
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.0-py3-none-any.whl", hash = "sha256:34374b52416911f7b210f46716b8d6a2dbf2506f8fb8897222486ede831708db" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.1-py3-none-any.whl", hash = "sha256:79daab6291a8356301d4c3a8186eef560f4c739cf79de1c06716b6ab123ca418" },
 ]
 
 [package.optional-dependencies]
@@ -2221,18 +2221,19 @@ viewer = [
 
 [[package]]
 name = "vis-nav-sim"
-version = "0.1.0"
+version = "0.1.1"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
     { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
+    { name = "rich" },
 ]
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:ed7624f51184e371c19e13ab1d4da55cb6f8ced6a0043b6bbe8a31ff7fdf92fa" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.0-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:a97f5ef8456be1c3a42d84107a82489826812be82b3e26763084d46242d5a8c4" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:939762c016072d6afba3c18f7f8e14687591bbad7ec0d4fb66e3bcbe6741f5e5" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.0-cp310-abi3-win_amd64.whl", hash = "sha256:7ab666355de96f347f9bdd15d41d0c4f824ccd50fa56f79b900a95fcd22866be" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:89beb5b4346167e96a3534b2e348054e10f77cdcff3d1890e912cb687f745d51" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:665b9cc99e24cc5a27c94f4f96cacf87538b3cb11203659741dcdd139edc3414" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:f6f433ce658ef1a00162b122c0da8a8bb8d54db83dc8c83b5a5ebc5285fa2373" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-win_amd64.whl", hash = "sha256:7772c73a1df1faf5d89936c3a6b8bf03d1dea083f7872caac18b4012a54328c7" },
 ]
 
 [[package]]
@@ -2364,14 +2365,14 @@ version = "17.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
-    "python_full_version >= '3.12' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
     "python_full_version == '3.11.*' and extra != 'group-14-vis-nav-player-rl-cpu' and extra != 'group-14-vis-nav-player-rl-cuda'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/18/72/fba934cb3dff7a85d811820efffcd141ddd52b5a2a01637f64551373ff4d/websockets-17.1.tar.gz", hash = "sha256:acfea4c20bf54384883ea33b1240fc1db4f52e190823a4e2b334bc3e8bfca96a", size = 187520, upload-time = "2026-08-26T17:25:33.063Z" }
