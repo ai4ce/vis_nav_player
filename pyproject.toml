@@ -14,6 +14,8 @@ dependencies = [
 
 [tool.uv]
 package = false
+# One torch at a time: rl-cpu and rl-cuda pick different builds of it.
+conflicts = [[{ group = "rl-cpu" }, { group = "rl-cuda" }]]
 
 # The SDK comes from the course site's own package index, not PyPI. To pick up a new
 # release:  uv lock --upgrade-package vis-nav-sdk && uv sync
@@ -22,17 +24,40 @@ name = "vis-nav"
 url = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/"
 explicit = true
 
+# PyTorch publishes one build per accelerator on its own indexes; PyPI carries the CPU build
+# for macOS and Windows and the CUDA build for Linux. The rl group takes PyPI's; rl-cpu and
+# rl-cuda choose a build outright (uv: "Using uv with PyTorch").
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
 [tool.uv.sources]
 vis-nav-sdk = { index = "vis-nav" }
 vis-nav-sim = { index = "vis-nav" }
+torch = [
+  { index = "pytorch-cpu", group = "rl-cpu" },
+  { index = "pytorch-cu128", group = "rl-cuda", marker = "sys_platform != 'darwin'" },
+]
 
 # What `uv sync` installs is the core: enough for --challenge. The rest is opted into:
-#   uv sync --group local    the simulator in this process, for --local (vis-nav-sim)
-#   uv sync --group rl       that plus gymnasium and skrl (and with skrl, torch), for source/rl/
+#   uv sync --group local     the simulator in this process, for --local (vis-nav-sim)
+#   uv sync --group rl        that plus gymnasium and skrl, with PyPI's torch: CPU on macOS
+#                             and Windows, CUDA on Linux
+#   uv sync --group rl-cuda   the same with the CUDA build of torch, for an NVIDIA card on
+#                             Windows or Linux (macOS falls back to PyPI)
+#   uv sync --group rl-cpu    the same with the CPU build everywhere: the small download
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
 local = ["vis-nav-sim>=0.1.0"]
 rl = [{ include-group = "local" }, "gymnasium>=1.0", "skrl[torch]>=2.1"]
+rl-cpu = [{ include-group = "rl" }, "torch>=2.4"]
+rl-cuda = [{ include-group = "rl" }, "torch>=2.4"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

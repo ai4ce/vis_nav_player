@@ -63,7 +63,9 @@ the robot's true position for the reward (which only exists locally), skrl's PPO
 a list of mazes, and the trained policy as an agent that sees only frames:
 
 ```bash
-uv sync --group rl                                            # gymnasium, skrl, torch
+uv sync --group rl          # gymnasium, skrl, and PyPI's torch: CPU on macOS and Windows, CUDA on Linux
+uv sync --group rl-cuda     # ...or the CUDA build, for an NVIDIA card on Windows or Linux
+uv sync --group rl-cpu      # ...or the CPU build everywhere: the small download
 uv run source/rl/env.py --mazes 7,8,9                         # a random policy, to see the environment
 uv run source/rl/train.py --mazes 7,8,9,10 --timesteps 200000 # -> models/policy.pt
 uv run source/rl/play.py --local 11                           # a maze it never saw
