@@ -42,7 +42,33 @@ uv run source/my_agent.py         # your agent (source/my_agent.py)
 
 Every script accepts `--challenge` and `--api-key` in place of `.env`, plus `--yes`,
 `--no-browser`, `--no-check` and, where relevant, `--data <dir>`. When a new SDK version is
-out the scripts say so; `uv lock --upgrade-package vis-nav-sdk && uv sync` updates it.
+out the scripts say so and offer to update.
+
+## On your own machine
+
+The server's simulator is also a Python package. With it, any script runs on a maze on your
+machine instead of a challenge: no attempt, no key, no network, the same code.
+
+```bash
+uv sync --group local                        # once; the first run also downloads the textures (123 MB)
+uv run source/keyboard_agent.py --local 7    # maze 7: the same maze on every machine
+uv run source/my_agent.py --local 7
+```
+
+A seed is a maze; share one like a challenge id. The exploration data for a local maze is
+recorded on first use into `data/local-<seed>/`, so the baseline works there too.
+
+For reinforcement learning, `source/rl/` is a Gymnasium environment on the simulator, with
+the robot's true position for the reward (which only exists locally), skrl's PPO to train on
+a list of mazes, and the trained policy as an agent that sees only frames:
+
+```bash
+uv sync --group rl                                            # gymnasium, skrl, torch
+uv run source/rl/env.py --mazes 7,8,9                         # a random policy, to see the environment
+uv run source/rl/train.py --mazes 7,8,9,10 --timesteps 200000 # -> models/policy.pt
+uv run source/rl/play.py --local 11                           # a maze it never saw
+uv run source/rl/play.py --challenge <id>                     # one real attempt
+```
 
 ## What is here
 
@@ -51,7 +77,8 @@ out the scripts say so; `uv lock --upgrade-package vis-nav-sdk && uv sync` updat
 | `source/my_agent.py` | the skeleton: `__init__`, `setup`, `act`, `finish`, `hud`, `panel`, each with a comment saying when it runs |
 | `source/keyboard_agent.py` | drive with the arrow keys |
 | `source/baseline_agent.py`, `source/vlad.py` | RootSIFT + VLAD place recognition over the exploration frames, a graph of them, and the next move along the shortest path |
-| `source/cli.py` | the shared command line and `.env` loading |
+| `source/cli.py` | the shared command line, `.env` loading, `--local` |
+| `source/rl/` | `env.py` the Gymnasium environment, `models.py` the networks, `train.py` PPO with skrl, `play.py` the policy as an agent |
 
 The SDK's own documentation (`connect()`, `Session`, the REST client) is at
 <https://visual-navigation-challenge.ai4ce.dev/sdk>.
