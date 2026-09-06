@@ -1,7 +1,10 @@
 """
-A Gymnasium environment on the local simulator, for reinforcement learning.
+Experimental: a Gymnasium environment on the local simulator, for reinforcement learning.
 
     uv run source/rl/env.py --mazes 7,8,9      # random policy, prints rewards
+
+This directory is a demo of the plumbing, not a route to a score: the course's reference
+agent is source/baseline_agent.py. Everything here is a starting point to change.
 
 The simulator runs in this process (`vis_nav_sim`), so an episode is a few thousand frames
 a second and a new maze is a millisecond. The reward uses the robot's true position, which

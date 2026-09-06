@@ -58,9 +58,12 @@ uv run source/my_agent.py --local 7
 A seed is a maze; share one like a challenge id. The exploration data for a local maze is
 recorded on first use into `data/local-<seed>/`, so the baseline works there too.
 
-For reinforcement learning, `source/rl/` is a Gymnasium environment on the simulator, with
-the robot's true position for the reward (which only exists locally), skrl's PPO to train on
-a list of mazes, and the trained policy as an agent that sees only frames:
+**Experimental:** `source/rl/` is a reinforcement learning demo on the simulator: a Gymnasium
+environment with the robot's true position for the reward (which only exists locally),
+skrl's PPO to train on a list of mazes, and the trained policy as an agent that sees only
+frames. It shows the plumbing, not a way to score: out of the box it learns to move, not to
+find the goal. The baseline in `source/baseline_agent.py` is the course's reference agent;
+start there.
 
 ```bash
 uv sync --group rl          # gymnasium, skrl, and PyPI's torch: CPU on macOS and Windows, CUDA on Linux
@@ -80,7 +83,7 @@ uv run source/rl/play.py --challenge <id>                     # one real attempt
 | `source/keyboard_agent.py` | drive with the arrow keys |
 | `source/baseline_agent.py`, `source/vlad.py` | RootSIFT + VLAD place recognition over the exploration frames, a graph of them, and the next move along the shortest path |
 | `source/cli.py` | the shared command line, `.env` loading, `--local` |
-| `source/rl/` | `env.py` the Gymnasium environment, `models.py` the networks, `train.py` PPO with skrl, `play.py` the policy as an agent |
+| `source/rl/` | experimental RL demo: `env.py` the Gymnasium environment, `models.py` the networks, `train.py` PPO with skrl, `play.py` the policy as an agent |
 
 The SDK's own documentation (`connect()`, `Session`, the REST client) is at
 <https://visual-navigation-challenge.ai4ce.dev/sdk>.

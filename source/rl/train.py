@@ -1,5 +1,5 @@
 """
-Train a policy on the local simulator with skrl's PPO.
+Experimental: train a policy on the local simulator with skrl's PPO.
 
     uv run source/rl/train.py --mazes 7,8,9,10 --timesteps 200000    # -> models/policy.pt
 
@@ -8,9 +8,10 @@ the networks are `rl/models.py`. Logs and skrl checkpoints go under runs/; the p
 weights alone go to models/policy.pt, which `rl/play.py` wraps in an Agent that sees only
 frames and drives it on another local maze or on the server.
 
-This is a starting point, not a solution: two hundred thousand steps of PPO on raw pixels
-learns to move and turn, not to navigate a maze it has never seen. The observation, the
-reward and the networks are the parts to change.
+This is a demo, not a solution: two hundred thousand steps of PPO on raw pixels learns to
+move and turn, not to navigate a maze it has never seen. The course's reference agent is
+source/baseline_agent.py. The observation, the reward and the networks are the parts to
+change if you want to take this further.
 
 Requires `uv sync --group rl` (gymnasium, skrl and with it torch).
 """

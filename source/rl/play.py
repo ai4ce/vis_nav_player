@@ -1,5 +1,5 @@
 """
-Drive a trained policy: on another local maze, or on the server for a real attempt.
+Experimental: drive a trained policy on another local maze, or on the server for a real attempt.
 
     uv run source/rl/play.py --local 11          # a maze it never saw, free
     uv run source/rl/play.py --challenge <id>    # one attempt on the server
