@@ -2199,7 +2199,7 @@ rl-cuda = [
 
 [[package]]
 name = "vis-nav-sdk"
-version = "0.7.2"
+version = "0.7.3"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
@@ -2209,9 +2209,9 @@ dependencies = [
     { name = "websockets", version = "16.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
     { name = "websockets", version = "17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
 ]
-sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.2.tar.gz", hash = "sha256:6bf618df4e3de16d89ade9974817a487f1959e7e41a583819ad6f5f2d341038c" }
+sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.3.tar.gz", hash = "sha256:d47e9ca52b2c92bb0a5226924ad26398619a9ade05c881785cbef8640a72d428" }
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.2-py3-none-any.whl", hash = "sha256:1f4cdb3714f55aa1f5c434de3beef67a30e92f5bd03d1234914150640909a1a3" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.3-py3-none-any.whl", hash = "sha256:d7741062e072904f360e2456102beee95b0474786079801e079c7e018c8e4fe4" },
 ]
 
 [package.optional-dependencies]
@@ -2221,7 +2221,7 @@ viewer = [
 
 [[package]]
 name = "vis-nav-sim"
-version = "0.1.1"
+version = "0.1.2"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
@@ -2230,10 +2230,10 @@ dependencies = [
     { name = "rich" },
 ]
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:89beb5b4346167e96a3534b2e348054e10f77cdcff3d1890e912cb687f745d51" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:665b9cc99e24cc5a27c94f4f96cacf87538b3cb11203659741dcdd139edc3414" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:f6f433ce658ef1a00162b122c0da8a8bb8d54db83dc8c83b5a5ebc5285fa2373" },
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.1-cp310-abi3-win_amd64.whl", hash = "sha256:7772c73a1df1faf5d89936c3a6b8bf03d1dea083f7872caac18b4012a54328c7" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:71ddc3a24b995fb8489d4443846333db34241d0f7f7207cde7e67cb5db9f593b" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.2-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:08585376edc72bcc96bc92c0885606e3d97cbf7486aa71ee1fa67942dd8c9b97" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.2-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:4b63975940d2c522f92d9ecb7c797c19b7912a8d71655eaab4de893df0f94d0a" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sim-0.1.2-cp310-abi3-win_amd64.whl", hash = "sha256:4d73f68c3cc40bdb428cabb784c7ef13d8b08999df1144e338be5bd3171211cb" },
 ]
 
 [[package]]
