@@ -47,7 +47,7 @@ def parser(description: str) -> argparse.ArgumentParser:
         help=(
             "run on the local simulator instead of the server, in the maze this seed "
             "generates (default 7; the same seed is the same maze on every machine). "
-            "No attempt is spent. Needs `uv sync --extra local` and the texture pack."
+            "No attempt is spent. The first run downloads the texture pack (123 MB)."
         ),
     )
     p.add_argument("--api-key", default=None, help="your API key (or VIS_NAV_API_KEY in .env)")
@@ -109,7 +109,7 @@ def record_exploration_data(seed: int, dest: str | Path = "data") -> Path:
         import vis_nav_sim as sim
     except ImportError:
         raise SystemExit(
-            "--local needs the vis-nav-sim package: run `uv sync --extra local`"
+            "--local needs the vis-nav-sim package, which `uv sync` installs; run it again"
         ) from None
     try:
         textures = sim.Textures.find()

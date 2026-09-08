@@ -14,6 +14,9 @@ dependencies = [
 
 [tool.uv]
 package = false
+# `uv sync` installs the core, dev, and the local simulator (3 MB): --local works out of
+# the box, and a plain `uv sync` does not remove it again. The rl groups are opted into.
+default-groups = ["dev", "local"]
 # One torch at a time: rl-cpu and rl-cuda pick different builds of it.
 conflicts = [[{ group = "rl-cpu" }, { group = "rl-cuda" }]]
 
@@ -45,10 +48,10 @@ torch = [
   { index = "pytorch-cu128", group = "rl-cuda", marker = "sys_platform != 'darwin'" },
 ]
 
-# What `uv sync` installs is the core: enough for --challenge. The rest is opted into:
-#   uv sync --group local     the simulator in this process, for --local (vis-nav-sim)
-#   uv sync --group rl        that plus gymnasium and skrl, with PyPI's torch: CPU on macOS
-#                             and Windows, CUDA on Linux
+# `uv sync` installs the core and the `local` group (the simulator in this process, for
+# --local). Reinforcement learning is opted into:
+#   uv sync --group rl        gymnasium and skrl, with PyPI's torch: CPU on macOS and
+#                             Windows, CUDA on Linux
 #   uv sync --group rl-cuda   the same with the CUDA build of torch, for an NVIDIA card on
 #                             Windows or Linux (macOS falls back to PyPI)
 #   uv sync --group rl-cpu    the same with the CPU build everywhere: the small download

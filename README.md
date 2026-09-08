@@ -46,11 +46,11 @@ out the scripts say so and offer to update.
 
 ## On your own machine
 
-The server's simulator is also a Python package. With it, any script runs on a maze on your
-machine instead of a challenge: no attempt, no key, no network, the same code.
+The server's simulator is also a Python package, and `uv sync` installs it. With it, any
+script runs on a maze on your machine instead of a challenge: no attempt, no key, no
+network, the same code. The first run downloads the texture pack (123 MB).
 
 ```bash
-uv sync --group local                        # once; the first run also downloads the textures (123 MB)
 uv run source/keyboard_agent.py --local 7    # maze 7: the same maze on every machine
 uv run source/my_agent.py --local 7
 ```
