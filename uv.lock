@@ -2199,7 +2199,7 @@ rl-cuda = [
 
 [[package]]
 name = "vis-nav-sdk"
-version = "0.7.3"
+version = "0.7.4"
 source = { registry = "https://visual-navigation-challenge.ai4ce.dev/sdk/simple/" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
@@ -2209,9 +2209,9 @@ dependencies = [
     { name = "websockets", version = "16.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
     { name = "websockets", version = "17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'group-14-vis-nav-player-rl-cpu' and extra == 'group-14-vis-nav-player-rl-cuda')" },
 ]
-sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.3.tar.gz", hash = "sha256:d47e9ca52b2c92bb0a5226924ad26398619a9ade05c881785cbef8640a72d428" }
+sdist = { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.4.tar.gz", hash = "sha256:1cd7157ee95d84c479d4a3676c7a5fe4610f9cfbaefa802cf87bd9ca4c62699a" }
 wheels = [
-    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.3-py3-none-any.whl", hash = "sha256:d7741062e072904f360e2456102beee95b0474786079801e079c7e018c8e4fe4" },
+    { url = "https://visual-navigation-challenge.ai4ce.dev/sdk/vis_nav_sdk-0.7.4-py3-none-any.whl", hash = "sha256:6008b3b66462c6733aa9ebe740fd3a92bf7a0876e948937b2f8b43f5594560e2" },
 ]
 
 [package.optional-dependencies]
